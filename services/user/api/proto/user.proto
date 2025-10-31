@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+option go_package = "gen/pb/";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+
+message User {
+  string id = 1;
+
+  string username = 2;
+  string email = 3;
+
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message CreateUserRequest {
+  string username = 1;
+  string password = 2;
+  string email = 3;
+}
+
+message UpdateUserRequest {
+  string id = 1;
+  User user = 2;
+  google.protobuf.FieldMask update_mask = 3;
+}
+
+message ChangePasswordRequest {
+  string id = 1;
+  string current_password = 2;
+  string new_password = 3;
+}
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message DeleteUserRequest {
+  string id = 1;
+}
+
+message ListUsersRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+  string query = 3; 
+}
+
+
+message ListUsersResponse {
+  repeated User users = 1;
+  string next_page_token = 2;
+  int32 total_size = 3;
+}
+
+message LoginRequest {
+  string email = 1; 
+  string password = 2;
+}
+
+message LoginResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int64 expires_in = 3;
+  User user = 4;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+  string access_token = 1;
+  int64 expires_in = 2;
+}
+
+service UserService {
+  rpc CreateUser(CreateUserRequest) returns (User) ;
+
+  rpc GetUser(GetUserRequest) returns (User) ;
+
+  rpc UpdateUser(UpdateUserRequest) returns (google.protobuf.Empty); 
+
+  rpc ChangePassword(ChangePasswordRequest) returns (google.protobuf.Empty);
+
+  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty); 
+
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+
+  rpc Login(LoginRequest) returns (LoginResponse);
+
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse); 
+}
