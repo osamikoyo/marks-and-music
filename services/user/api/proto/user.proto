@@ -11,6 +11,8 @@ message User {
 
   string username = 2;
   string email = 3;
+  int64 reviews = 6;
+  int64 likes = 7;
 
   google.protobuf.Timestamp created_at = 4;
   google.protobuf.Timestamp updated_at = 5;
@@ -42,11 +44,6 @@ message DeleteUserRequest {
   string id = 1;
 }
 
-message ListUsersRequest {
-  int32 page_size = 1;
-  string page_token = 2;
-  string query = 3; 
-}
 
 
 message ListUsersResponse {
@@ -76,6 +73,7 @@ message RefreshTokenResponse {
   int64 expires_in = 2;
 }
 
+
 service UserService {
   rpc CreateUser(CreateUserRequest) returns (User) ;
 
@@ -86,8 +84,6 @@ service UserService {
   rpc ChangePassword(ChangePasswordRequest) returns (google.protobuf.Empty);
 
   rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty); 
-
-  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
 
   rpc Login(LoginRequest) returns (LoginResponse);
 
