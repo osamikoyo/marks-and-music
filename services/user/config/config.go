@@ -13,7 +13,7 @@ const (
 	DefaultJwtKey    = "super-secret-jwt-key-change-in-production"
 	DefaultLogLevel  = "debug"
 	DefaultRTokenTTL = 72 * time.Hour
-	DefaultATokenTTL = 15 * time.Minute // Рекомендуется 15 минут для access token
+	DefaultATokenTTL = 15 * time.Minute
 )
 
 type Config struct {
