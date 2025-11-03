@@ -174,17 +174,101 @@ func (uss *UserServiceServer) Register(ctx context.Context, req *pb.RegisterRequ
 }
 
 func (uss *UserServiceServer) IncLike(ctx context.Context, req *pb.IncLikeRequest) (*emptypb.Empty, error) {
+	if req == nil {
+		uss.logger.Error("empty request")
 
+		return &emptypb.Empty{}, ErrEmptyReq
+	}
+
+	uss.logger.Info("new inc like request",
+		zap.String("id", req.UserId))
+
+	uid, err := uuid.Parse(req.UserId)
+	if err != nil {
+		uss.logger.Error("failed to parse uuid from request",
+			zap.String("id", req.UserId))
+
+		return &emptypb.Empty{}, ErrInvalidUUID
+	}
+
+	if err = uss.core.IncLike(uid);err != nil{
+		return &emptypb.Empty{}, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (uss *UserServiceServer) DecLike(ctx context.Context, req *pb.DecLikeRequest) (*emptypb.Empty, error) {
+	if req == nil {
+		uss.logger.Error("empty request")
 
+		return &emptypb.Empty{}, ErrEmptyReq
+	}
+
+	uss.logger.Info("new dec like request",
+		zap.String("id", req.UserId))
+
+	uid, err := uuid.Parse(req.UserId)
+	if err != nil {
+		uss.logger.Error("failed to parse uuid from request",
+			zap.String("id", req.UserId))
+
+		return &emptypb.Empty{}, ErrInvalidUUID
+	}
+
+	if err = uss.core.DecLike(uid);err != nil{
+		return &emptypb.Empty{}, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (uss *UserServiceServer) IncReview(ctx context.Context, req *pb.IncReviewRequest) (*emptypb.Empty, error) {
+	if req == nil {
+		uss.logger.Error("empty request")
 
+		return &emptypb.Empty{}, ErrEmptyReq
+	}
+
+	uss.logger.Info("new inc like request",
+		zap.String("id", req.UserId))
+
+	uid, err := uuid.Parse(req.UserId)
+	if err != nil {
+		uss.logger.Error("failed to parse uuid from request",
+			zap.String("id", req.UserId))
+
+		return &emptypb.Empty{}, ErrInvalidUUID
+	}
+
+	if err = uss.core.IncReview(uid);err != nil{
+		return &emptypb.Empty{}, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (uss *UserServiceServer) DecReview(ctx context.Context, req *pb.DecReviewRequest) (*emptypb.Empty, error) {
+		if req == nil {
+		uss.logger.Error("empty request")
 
+		return &emptypb.Empty{}, ErrEmptyReq
+	}
+
+	uss.logger.Info("new dec review request",
+		zap.String("id", req.UserId))
+
+	uid, err := uuid.Parse(req.UserId)
+	if err != nil {
+		uss.logger.Error("failed to parse uuid from request",
+			zap.String("id", req.UserId))
+
+		return &emptypb.Empty{}, ErrInvalidUUID
+	}
+
+	if err = uss.core.DecReview(uid);err != nil{
+		return &emptypb.Empty{}, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
