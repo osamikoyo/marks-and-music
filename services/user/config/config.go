@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/osamikoyo/music-and-marks/logger"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
@@ -11,29 +12,29 @@ import (
 const (
 	DefaultAddr      = "localhost:8081"
 	DefaultJwtKey    = "super-secret-jwt-key-change-in-production"
-	DefaultLogLevel  = "debug"
 	DefaultRTokenTTL = 72 * time.Hour
 	DefaultATokenTTL = 15 * time.Minute
+	DefaultDatabasePath = "storage/users.db"
 )
 
 type Config struct {
 	Addr      string        `yaml:"addr" mapstructure:"addr"`
 	JwtKey    string        `yaml:"jwt_key" mapstructure:"jwt_key"`
-	LogLevel  string        `yaml:"log_level" mapstructure:"log_level"`
 	RTokenTTL time.Duration `yaml:"refresh_token_ttl" mapstructure:"refresh_token_ttl"`
 	ATokenTTL time.Duration `yaml:"access_token_ttl" mapstructure:"access_token_ttl"`
+	DatabasePath string `yaml:"database_path" mapstructure:"database_path"`
 }
 
-func NewConfig(path string, logger *zap.Logger) (*Config, error) {
+func NewConfig(path string, logger *logger.Logger) (*Config, error) {
 	v := viper.New()
 	v.SetConfigFile(path)
 	v.SetConfigType("yaml")
 
 	v.SetDefault("addr", DefaultAddr)
 	v.SetDefault("jwt_key", DefaultJwtKey)
-	v.SetDefault("log_level", DefaultLogLevel)
 	v.SetDefault("refresh_token_ttl", DefaultRTokenTTL)
 	v.SetDefault("access_token_ttl", DefaultATokenTTL)
+	v.SetDefault("database_path", DefaultDatabasePath)
 
 	v.SetEnvPrefix("APP")
 	v.AutomaticEnv()
@@ -52,6 +53,7 @@ func NewConfig(path string, logger *zap.Logger) (*Config, error) {
 	_ = v.BindEnv("log_level", "APP_LOG_LEVEL")
 	_ = v.BindEnv("refresh_token_ttl", "APP_REFRESH_TOKEN_TTL")
 	_ = v.BindEnv("access_token_ttl", "APP_ACCESS_TOKEN_TTL")
+	_ = v.BindEnv("database_path", "APP_DATABASE_PATH")
 
 	var cfg Config
 	if err := v.Unmarshal(&cfg); err != nil {
@@ -64,10 +66,10 @@ func NewConfig(path string, logger *zap.Logger) (*Config, error) {
 
 	logger.Info("Configuration loaded",
 		zap.String("addr", cfg.Addr),
-		zap.String("log_level", cfg.LogLevel),
 		zap.Duration("access_token_ttl", cfg.ATokenTTL),
 		zap.Duration("refresh_token_ttl", cfg.RTokenTTL),
 		zap.Bool("jwt_key_set", cfg.JwtKey != DefaultJwtKey),
+		zap.String("database_path", cfg.DatabasePath),
 	)
 
 	return &cfg, nil
