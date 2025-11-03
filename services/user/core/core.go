@@ -13,14 +13,14 @@ import (
 )
 
 var (
-	ErrEmptyFields = errors.New("empty fields")
-	ErrJwtFailed   = errors.New("failed to generate token")
-	ErrDoublePasswords = errors.New("passwords is simular")
+	ErrEmptyFields      = errors.New("empty fields")
+	ErrJwtFailed        = errors.New("failed to generate token")
+	ErrDoublePasswords  = errors.New("passwords is simular")
 	ErrComparePasswords = errors.New("old password is wrong")
-	ErrParseToken = errors.New("failed parse jwt token")
-	ErrInvalidToken = errors.New("invalid jwt token")
-	ErrGetNewToken = errors.New("fialed to get new token")
-	ErrInternal = errors.New("internal error")
+	ErrParseToken       = errors.New("failed parse jwt token")
+	ErrInvalidToken     = errors.New("invalid jwt token")
+	ErrGetNewToken      = errors.New("fialed to get new token")
+	ErrInternal         = errors.New("internal error")
 )
 
 type Repository interface {
@@ -35,11 +35,10 @@ type Repository interface {
 type UserCore struct {
 	repo    Repository
 	timeout time.Duration
-	jwtKey  string
-	cfg *config.Config
+	cfg     *config.Config
 }
 
-type Claims struct {
+type RefreshTokenClaims struct {
 	UserID string `json:"user_id"`
 	jwt.RegisteredClaims
 }
@@ -47,7 +46,7 @@ type Claims struct {
 func (uc *UserCore) context() (context.Context, context.CancelFunc) {
 	return context.WithTimeout(context.Background(), uc.timeout)
 }
-func newJwtKey(uid, key string, dur time.Duration) (string, error) {
+func newJwtRefreshKey(uid, key string, dur time.Duration) (string, error) {
 	claims := jwt.MapClaims{
 		"uid": uid,
 		"exp": time.Now().Add(dur).Unix(),
@@ -59,12 +58,24 @@ func newJwtKey(uid, key string, dur time.Duration) (string, error) {
 	return token.SignedString([]byte(key))
 }
 
-func NewUserCore(repo Repository, jwtKey string, timeout time.Duration, cfg *config.Config) *UserCore {
+func newJwtAccessKey(uid,ref, key string, dur time.Duration) (string, error) {
+	claims := jwt.MapClaims{
+		"uid": uid,
+		"ref": ref,
+		"exp": time.Now().Add(dur).Unix(),
+		"iat": time.Now().Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString([]byte(key))
+}
+
+func NewUserCore(repo Repository,timeout time.Duration, cfg *config.Config) *UserCore {
 	return &UserCore{
 		repo:    repo,
 		timeout: timeout,
-		jwtKey:  jwtKey,
-		cfg: cfg,
+		cfg:     cfg,
 	}
 }
 
@@ -82,31 +93,19 @@ func (uc *UserCore) RegisterUser(username, password, email string) (*entity.Toke
 		return nil, err
 	}
 
-		reftoken, err := newJwtKey(user.ID.String(), uc.jwtKey, uc.timeout)
+	reftoken, err := newJwtRefreshKey(user.ID.String(), uc.cfg.JwtKey, uc.cfg.RTokenTTL)
 	if err != nil {
-		return nil, err
+		return nil, ErrJwtFailed
 	}
 
-	expiresAt := time.Now().Add(uc.cfg.ATokenTTL)
-
-	claims := Claims{
-		UserID: user.ID.String(),
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expiresAt),
-			IssuedAt: jwt.NewNumericDate(time.Now()),
-			Issuer: "music-and-marks",
-		},
-	}
-
-	accessTkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	accessTknStr, err := accessTkn.SignedString(uc.cfg.JwtKey)
+	access, err := newJwtAccessKey(user.ID.String(), reftoken, uc.cfg.JwtKey, uc.cfg.ATokenTTL)
 	if err != nil{
-		return nil, ErrGetNewToken
+		return nil, ErrJwtFailed
 	}
 
 	return &entity.TokenPair{
 		RefreshToken: reftoken,
-		AccessToken: accessTknStr,
+		AccessToken:  access,
 	}, nil
 }
 
@@ -123,35 +122,20 @@ func (uc *UserCore) LoginUser(password, email string) (*entity.TokenPair, error)
 		return nil, err
 	}
 
-	reftoken, err := newJwtKey(id, uc.jwtKey, uc.timeout)
+	reftoken, err := newJwtRefreshKey(id, uc.cfg.JwtKey, uc.cfg.RTokenTTL)
 	if err != nil {
 		return nil, err
 	}
 
-	expiresAt := time.Now().Add(uc.cfg.ATokenTTL)
-
-	claims := Claims{
-		UserID: id,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expiresAt),
-			IssuedAt: jwt.NewNumericDate(time.Now()),
-			Issuer: "music-and-marks",
-		},
-	}
-
-	accessTkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	accessTknStr, err := accessTkn.SignedString(uc.cfg.JwtKey)
-	if err != nil{
-		return nil, ErrGetNewToken
-	}
+	access, err := newJwtAccessKey(id, reftoken, uc.cfg.JwtKey, )
 
 	return &entity.TokenPair{
 		RefreshToken: reftoken,
-		AccessToken: accessTknStr,
+		AccessToken:  access,
 	}, nil
 }
 
-func (uc *UserCore) ChangePassword(id uuid.UUID,old, new string) error {
+func (uc *UserCore) ChangePassword(id uuid.UUID, old, new string) error {
 	if old == new {
 		return ErrDoublePasswords
 	}
@@ -160,23 +144,23 @@ func (uc *UserCore) ChangePassword(id uuid.UUID,old, new string) error {
 	defer cancel()
 
 	user, err := uc.repo.GetUser(ctx, id)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(old))
-	if err != nil{
+	if err != nil {
 		return ErrComparePasswords
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(new), bcrypt.DefaultCost)
-	if err != nil{
+	if err != nil {
 		return ErrInternal
 	}
 
 	user.Password = string(hash)
 
-	if err = uc.repo.UpdateUser(ctx, user);err != nil{
+	if err = uc.repo.UpdateUser(ctx, user); err != nil {
 		return err
 	}
 
@@ -191,12 +175,12 @@ func (uc *UserCore) Refresh(refreshToken string) (string, error) {
 	token, err := jwt.Parse(refreshToken, func(t *jwt.Token) (any, error) {
 		return uc.cfg.JwtKey, nil
 	})
-	if err != nil{
+	if err != nil {
 		return "", ErrParseToken
 	}
 
 	refreshClaims, ok := token.Claims.(jwt.MapClaims)
-	if !ok || !token.Valid{
+	if !ok || !token.Valid {
 		return "", ErrInvalidToken
 	}
 
@@ -206,14 +190,14 @@ func (uc *UserCore) Refresh(refreshToken string) (string, error) {
 		UserID: refreshClaims["uid"].(string),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
-			IssuedAt: jwt.NewNumericDate(time.Now()),
-			Issuer: "music-and-marks",
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			Issuer:    "music-and-marks",
 		},
 	}
 
 	accessTkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	accessTknStr, err := accessTkn.SignedString(uc.cfg.JwtKey)
-	if err != nil{
+	if err != nil {
 		return "", ErrGetNewToken
 	}
 
@@ -229,7 +213,7 @@ func (uc *UserCore) IncLike(uid uuid.UUID) error {
 	defer cancel()
 
 	user, err := uc.repo.GetUser(ctx, uid)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
@@ -247,7 +231,7 @@ func (uc *UserCore) DecLike(uid uuid.UUID) error {
 	defer cancel()
 
 	user, err := uc.repo.GetUser(ctx, uid)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
@@ -265,7 +249,7 @@ func (uc *UserCore) IncReview(uid uuid.UUID) error {
 	defer cancel()
 
 	user, err := uc.repo.GetUser(ctx, uid)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
@@ -283,7 +267,7 @@ func (uc *UserCore) DecReview(uid uuid.UUID) error {
 	defer cancel()
 
 	user, err := uc.repo.GetUser(ctx, uid)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
@@ -304,7 +288,7 @@ func (uc *UserCore) GetUserByID(uid uuid.UUID) (*entity.User, error) {
 }
 
 func (uc *UserCore) GetUserByUsername(username string) (*entity.User, error) {
-		if len(username) == 0 {
+	if len(username) == 0 {
 		return nil, ErrEmptyFields
 	}
 
@@ -324,4 +308,3 @@ func (uc *UserCore) DeleteUser(uid uuid.UUID) error {
 
 	return uc.repo.DeleteUser(ctx, uid)
 }
-
