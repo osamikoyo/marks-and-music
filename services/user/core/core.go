@@ -58,7 +58,7 @@ func newJwtRefreshKey(uid, key string, dur time.Duration) (string, error) {
 	return token.SignedString([]byte(key))
 }
 
-func newJwtAccessKey(uid,ref, key string, dur time.Duration) (string, error) {
+func newJwtAccessKey(uid, ref, key string, dur time.Duration) (string, error) {
 	claims := jwt.MapClaims{
 		"uid": uid,
 		"ref": ref,
@@ -71,11 +71,10 @@ func newJwtAccessKey(uid,ref, key string, dur time.Duration) (string, error) {
 	return token.SignedString([]byte(key))
 }
 
-func NewUserCore(repo Repository,timeout time.Duration, cfg *config.Config) *UserCore {
+func NewUserCore(repo Repository, cfg *config.Config) *UserCore {
 	return &UserCore{
-		repo:    repo,
-		timeout: timeout,
-		cfg:     cfg,
+		repo: repo,
+		cfg:  cfg,
 	}
 }
 
@@ -99,7 +98,7 @@ func (uc *UserCore) RegisterUser(username, password, email string) (*entity.Toke
 	}
 
 	access, err := newJwtAccessKey(user.ID.String(), reftoken, uc.cfg.JwtKey, uc.cfg.ATokenTTL)
-	if err != nil{
+	if err != nil {
 		return nil, ErrJwtFailed
 	}
 
@@ -127,7 +126,7 @@ func (uc *UserCore) LoginUser(password, email string) (*entity.TokenPair, error)
 		return nil, err
 	}
 
-	access, err := newJwtAccessKey(id, reftoken, uc.cfg.JwtKey, )
+	access, err := newJwtAccessKey(id, reftoken, uc.cfg.JwtKey, uc.cfg.ATokenTTL)
 
 	return &entity.TokenPair{
 		RefreshToken: reftoken,
@@ -184,24 +183,12 @@ func (uc *UserCore) Refresh(refreshToken string) (string, error) {
 		return "", ErrInvalidToken
 	}
 
-	expiresAt := time.Now().Add(uc.cfg.ATokenTTL)
-
-	claims := Claims{
-		UserID: refreshClaims["uid"].(string),
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expiresAt),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Issuer:    "music-and-marks",
-		},
-	}
-
-	accessTkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	accessTknStr, err := accessTkn.SignedString(uc.cfg.JwtKey)
+	access, err := newJwtAccessKey(refreshClaims["uid"].(string), refreshToken, uc.cfg.JwtKey, uc.cfg.ATokenTTL)
 	if err != nil {
-		return "", ErrGetNewToken
+		return "", err
 	}
 
-	return accessTknStr, nil
+	return access, nil
 }
 
 func (uc *UserCore) IncLike(uid uuid.UUID) error {
