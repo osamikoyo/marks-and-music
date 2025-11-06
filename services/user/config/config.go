@@ -10,19 +10,21 @@ import (
 )
 
 const (
-	DefaultAddr      = "localhost:8081"
-	DefaultJwtKey    = "super-secret-jwt-key-change-in-production"
-	DefaultRTokenTTL = 72 * time.Hour
-	DefaultATokenTTL = 15 * time.Minute
+	DefaultAddr         = "localhost:8081"
+	DefaultMetricsAddr = "localhost:8080"
+	DefaultJwtKey       = "super-secret-jwt-key-change-in-production"
+	DefaultRTokenTTL    = 72 * time.Hour
+	DefaultATokenTTL    = 15 * time.Minute
 	DefaultDatabasePath = "storage/users.db"
 )
 
 type Config struct {
-	Addr      string        `yaml:"addr" mapstructure:"addr"`
-	JwtKey    string        `yaml:"jwt_key" mapstructure:"jwt_key"`
-	RTokenTTL time.Duration `yaml:"refresh_token_ttl" mapstructure:"refresh_token_ttl"`
-	ATokenTTL time.Duration `yaml:"access_token_ttl" mapstructure:"access_token_ttl"`
-	DatabasePath string `yaml:"database_path" mapstructure:"database_path"`
+	Addr         string        `yaml:"addr" mapstructure:"addr"`
+	JwtKey       string        `yaml:"jwt_key" mapstructure:"jwt_key"`
+	MetricsAddr  string        `yaml:"metrics_addr" mapstructure:"metrics_addr"`
+	RTokenTTL    time.Duration `yaml:"refresh_token_ttl" mapstructure:"refresh_token_ttl"`
+	ATokenTTL    time.Duration `yaml:"access_token_ttl" mapstructure:"access_token_ttl"`
+	DatabasePath string        `yaml:"database_path" mapstructure:"database_path"`
 }
 
 func NewConfig(path string, logger *logger.Logger) (*Config, error) {
@@ -31,6 +33,7 @@ func NewConfig(path string, logger *logger.Logger) (*Config, error) {
 	v.SetConfigType("yaml")
 
 	v.SetDefault("addr", DefaultAddr)
+	v.SetDefault("metrics_addr", DefaultMetricsAddr)
 	v.SetDefault("jwt_key", DefaultJwtKey)
 	v.SetDefault("refresh_token_ttl", DefaultRTokenTTL)
 	v.SetDefault("access_token_ttl", DefaultATokenTTL)
@@ -50,6 +53,7 @@ func NewConfig(path string, logger *logger.Logger) (*Config, error) {
 
 	_ = v.BindEnv("addr", "APP_ADDR")
 	_ = v.BindEnv("jwt_key", "APP_JWT_KEY")
+	_ = v.BindEnv("metrics_addr", "APP_METRICS_ADDR")
 	_ = v.BindEnv("log_level", "APP_LOG_LEVEL")
 	_ = v.BindEnv("refresh_token_ttl", "APP_REFRESH_TOKEN_TTL")
 	_ = v.BindEnv("access_token_ttl", "APP_ACCESS_TOKEN_TTL")
@@ -66,6 +70,7 @@ func NewConfig(path string, logger *logger.Logger) (*Config, error) {
 
 	logger.Info("Configuration loaded",
 		zap.String("addr", cfg.Addr),
+		zap.String("metrics_addr", cfg.MetricsAddr),
 		zap.Duration("access_token_ttl", cfg.ATokenTTL),
 		zap.Duration("refresh_token_ttl", cfg.RTokenTTL),
 		zap.Bool("jwt_key_set", cfg.JwtKey != DefaultJwtKey),
@@ -100,6 +105,13 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("access_token_ttl should not exceed 1 hour")
 	}
 
+	if c.DatabasePath == "" {
+		return fmt.Errorf("database_path should not be empty")
+	}
+ 
+	if c.Addr == c.MetricsAddr {
+		return fmt.Errorf("metrics addr and grpc addr should be different")
+	}
+
 	return nil
 }
-
