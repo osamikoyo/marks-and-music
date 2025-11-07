@@ -51,12 +51,12 @@ func (u *User) BeforeCreate(tx *gorm.DB) error {
 
 func (u *User) ToProto() *pb.User {
 	return &pb.User{
-		Email: u.Email,
-		Username: u.Username,
+		Email:     u.Email,
+		Username:  u.Username,
 		CreatedAt: timestamppb.New(u.CreatedAt),
 		UpdatedAt: timestamppb.New(u.UpdatedAt),
-		Likes: int64(u.Likes),
-		Reviews: int64(u.Reviews),
-		Id: u.ID.String(),
+		Likes:     int64(u.Likes),
+		Reviews:   int64(u.Reviews),
+		Id:        u.ID.String(),
 	}
 }
