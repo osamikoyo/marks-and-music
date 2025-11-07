@@ -1,0 +1,10 @@
+version : 3
+
+tasks:
+  build-user:
+    cmds:
+      - go build -o ./bin/user cmd/user/main.go
+  run-user:
+    cmds:
+      - task build-user
+      - ./bin/user
