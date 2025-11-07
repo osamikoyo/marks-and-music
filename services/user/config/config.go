@@ -54,7 +54,6 @@ func NewConfig(path string, logger *logger.Logger) (*Config, error) {
 	_ = v.BindEnv("addr", "APP_ADDR")
 	_ = v.BindEnv("jwt_key", "APP_JWT_KEY")
 	_ = v.BindEnv("metrics_addr", "APP_METRICS_ADDR")
-	_ = v.BindEnv("log_level", "APP_LOG_LEVEL")
 	_ = v.BindEnv("refresh_token_ttl", "APP_REFRESH_TOKEN_TTL")
 	_ = v.BindEnv("access_token_ttl", "APP_ACCESS_TOKEN_TTL")
 	_ = v.BindEnv("database_path", "APP_DATABASE_PATH")
