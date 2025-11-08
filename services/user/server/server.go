@@ -3,11 +3,13 @@ package server
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/osamikoyo/music-and-marks/logger"
 	"github.com/osamikoyo/music-and-marks/services/user/api/proto/gen/pb"
 	"github.com/osamikoyo/music-and-marks/services/user/core"
+	"github.com/osamikoyo/music-and-marks/services/user/metrics"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -31,6 +33,9 @@ func NewUserServiceServer(core *core.UserCore, logger *logger.Logger) *UserServi
 }
 
 func (uss *UserServiceServer) ChangePassword(ctx context.Context, req *pb.ChangePasswordRequest) (*emptypb.Empty, error) {
+	then := time.Now
+	metrics.RequestTotal.WithLabelValues("ChangePassword").Inc()
+
 	if req == nil {
 		uss.logger.Error("empty request")
 
@@ -54,10 +59,14 @@ func (uss *UserServiceServer) ChangePassword(ctx context.Context, req *pb.Change
 		return &emptypb.Empty{}, err
 	}
 
+	metrics.RequestDuration.WithLabelValues("ChangePassword").Observe(time.Since(then()).Seconds())
+	
 	return &emptypb.Empty{}, nil
 }
 
 func (uss *UserServiceServer) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*emptypb.Empty, error) {
+	then := time.Now()
+	metrics.RequestTotal.WithLabelValues("DeleteUser").Inc()
 	if req == nil {
 		uss.logger.Error("empty request")
 
@@ -79,10 +88,15 @@ func (uss *UserServiceServer) DeleteUser(ctx context.Context, req *pb.DeleteUser
 		return &emptypb.Empty{}, err
 	}
 
+	metrics.RequestDuration.WithLabelValues("DeleteUser").Observe(time.Since(then).Seconds())
+
 	return &emptypb.Empty{}, nil
 }
 
 func (uss *UserServiceServer) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.User, error) {
+	then := time.Now()
+	metrics.RequestTotal.WithLabelValues("GetUser").Inc()
+
 	if req == nil {
 		uss.logger.Error("empty request")
 
@@ -105,10 +119,15 @@ func (uss *UserServiceServer) GetUser(ctx context.Context, req *pb.GetUserReques
 		return nil, err
 	}
 
+	metrics.RequestDuration.WithLabelValues("GetUser").Observe(float64(time.Since(then).Seconds()))
+
 	return user.ToProto(), nil
 }
 
 func (uss *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*pb.TokenPair, error) {
+	then := time.Now()
+	metrics.RequestTotal.WithLabelValues("Login").Inc()
+
 	if req == nil {
 		uss.logger.Error("empty request")
 
@@ -124,6 +143,8 @@ func (uss *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (
 		return nil, err
 	}
 
+	metrics.RequestDuration.WithLabelValues("Login").Observe(float64(time.Since(then).Seconds()))
+
 	return &pb.TokenPair{
 		Refresh: tokens.RefreshToken,
 		Access:  tokens.AccessToken,
@@ -131,6 +152,9 @@ func (uss *UserServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (
 }
 
 func (uss *UserServiceServer) RefreshToken(ctx context.Context, req *pb.RefreshTokenRequest) (*pb.RefreshTokenResponse, error) {
+	then := time.Now()
+	metrics.RequestTotal.WithLabelValues("RefreshToken").Inc()
+
 	if req == nil {
 		uss.logger.Error("empty request")
 
@@ -145,12 +169,17 @@ func (uss *UserServiceServer) RefreshToken(ctx context.Context, req *pb.RefreshT
 		return nil, err
 	}
 
+	metrics.RequestDuration.WithLabelValues("RefreshToken").Observe(float64(time.Since(then).Seconds()))
+
 	return &pb.RefreshTokenResponse{
 		AccessToken: accessToken,
 	}, nil
 }
 
 func (uss *UserServiceServer) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.TokenPair, error) {
+	then := time.Now()
+	metrics.RequestTotal.WithLabelValues("Register").Inc()
+
 	if req == nil {
 		uss.logger.Error("empty request")
 
@@ -163,14 +192,16 @@ func (uss *UserServiceServer) Register(ctx context.Context, req *pb.RegisterRequ
 		zap.String("username", req.Username))
 
 	tokens, err := uss.core.RegisterUser(req.Username, req.Password, req.Email)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
+	metrics.RequestDuration.WithLabelValues("Register").Observe(float64(time.Since(then).Seconds()))
+
 	return &pb.TokenPair{
-		Access: tokens.AccessToken,
+		Access:  tokens.AccessToken,
 		Refresh: tokens.RefreshToken,
-	},nil
+	}, nil
 }
 
 func (uss *UserServiceServer) IncLike(ctx context.Context, req *pb.IncLikeRequest) (*emptypb.Empty, error) {
@@ -191,7 +222,7 @@ func (uss *UserServiceServer) IncLike(ctx context.Context, req *pb.IncLikeReques
 		return &emptypb.Empty{}, ErrInvalidUUID
 	}
 
-	if err = uss.core.IncLike(uid);err != nil{
+	if err = uss.core.IncLike(uid); err != nil {
 		return &emptypb.Empty{}, err
 	}
 
@@ -216,7 +247,7 @@ func (uss *UserServiceServer) DecLike(ctx context.Context, req *pb.DecLikeReques
 		return &emptypb.Empty{}, ErrInvalidUUID
 	}
 
-	if err = uss.core.DecLike(uid);err != nil{
+	if err = uss.core.DecLike(uid); err != nil {
 		return &emptypb.Empty{}, err
 	}
 
@@ -241,7 +272,7 @@ func (uss *UserServiceServer) IncReview(ctx context.Context, req *pb.IncReviewRe
 		return &emptypb.Empty{}, ErrInvalidUUID
 	}
 
-	if err = uss.core.IncReview(uid);err != nil{
+	if err = uss.core.IncReview(uid); err != nil {
 		return &emptypb.Empty{}, err
 	}
 
@@ -249,7 +280,7 @@ func (uss *UserServiceServer) IncReview(ctx context.Context, req *pb.IncReviewRe
 }
 
 func (uss *UserServiceServer) DecReview(ctx context.Context, req *pb.DecReviewRequest) (*emptypb.Empty, error) {
-		if req == nil {
+	if req == nil {
 		uss.logger.Error("empty request")
 
 		return &emptypb.Empty{}, ErrEmptyReq
@@ -266,7 +297,7 @@ func (uss *UserServiceServer) DecReview(ctx context.Context, req *pb.DecReviewRe
 		return &emptypb.Empty{}, ErrInvalidUUID
 	}
 
-	if err = uss.core.DecReview(uid);err != nil{
+	if err = uss.core.DecReview(uid); err != nil {
 		return &emptypb.Empty{}, err
 	}
 
