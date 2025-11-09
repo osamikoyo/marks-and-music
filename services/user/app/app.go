@@ -4,13 +4,17 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"net/http"
+	"sync"
 
 	"github.com/osamikoyo/music-and-marks/logger"
 	"github.com/osamikoyo/music-and-marks/services/user/api/proto/gen/pb"
 	"github.com/osamikoyo/music-and-marks/services/user/config"
 	"github.com/osamikoyo/music-and-marks/services/user/core"
+	"github.com/osamikoyo/music-and-marks/services/user/metrics"
 	"github.com/osamikoyo/music-and-marks/services/user/repository"
 	"github.com/osamikoyo/music-and-marks/services/user/server"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"gorm.io/driver/sqlite"
@@ -42,6 +46,13 @@ func SetupApp(config_path string) (*App, error) {
 			zap.Error(err))
 
 		return nil, fmt.Errorf("failed load config: %v", err)
+	}
+
+	if err = cfg.Validate(); err != nil {
+		logger.Error("invalid config",
+			zap.Error(err))
+
+		return nil, fmt.Errorf("invalid config: %v", err)
 	}
 
 	db, err := setupDB(logger, cfg)
@@ -87,7 +98,9 @@ func setupDB(logger *logger.Logger, cfg *config.Config) (*gorm.DB, error) {
 func (a *App) Start(ctx context.Context) error {
 	a.logger.Info("starting app...")
 
-	lis, err := net.Listen("tls", a.cfg.Addr)
+	metrics.InitMetrics()
+
+	lis, err := net.Listen("tcp", a.cfg.Addr)
 	if err != nil {
 		a.logger.Error("failed listen",
 			zap.String("addr", a.cfg.Addr),
@@ -99,15 +112,37 @@ func (a *App) Start(ctx context.Context) error {
 	go func() {
 		<-ctx.Done()
 
-		a.grpc.GracefulStop()
+		a.grpc.GracefulStop()	
 	}()
 
-	if err = a.grpc.Serve(lis); err != nil {
-		a.logger.Error("failed serve",
-			zap.Error(err))
+	var wg sync.WaitGroup
 
-		return fmt.Errorf("failed serve: %v", err)
-	}
+	http.Handle("/metrics", promhttp.Handler())
+
+	wg.Go(func() {
+		if err = http.ListenAndServe(a.cfg.MetricsAddr, nil); err != nil {
+			a.logger.Error("failed start metrics server",
+				zap.String("addr", a.cfg.MetricsAddr),
+				zap.Error(err))
+		}
+	})
+
+	a.logger.Info("metrics server started",
+		zap.String("addr", a.cfg.MetricsAddr))
+
+	wg.Go(func() {
+		if err = a.grpc.Serve(lis); err != nil {
+			a.logger.Error("failed serve",
+				zap.Error(err))
+		}
+	})
+
+	a.logger.Info("grpc server started",
+		zap.String("addr", a.cfg.Addr))
+
+	wg.Wait()
+
+	a.logger.Info("user-service started successfully")
 
 	return nil
 }
