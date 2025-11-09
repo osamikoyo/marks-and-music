@@ -9,15 +9,15 @@ import (
 )
 
 const (
-	DefaultAddr = "localhost:8082"
-	DefaultMetricsAddr = "localhost:8080"
+	DefaultAddr         = "localhost:8082"
+	DefaultMetricsAddr  = "localhost:8080"
 	DefaultDatabasePath = "storage/music.db"
 )
 
-type Config struct{
-	Addr string `yaml:"addr" mapstructure:"addr"`
+type Config struct {
+	Addr        string `yaml:"addr" mapstructure:"addr"`
 	MetricsAddr string `yaml:"metrics_addr" mapstructure:"metrics_addr"`
-	DBPath string `yaml:"database_path" mapstructure:"database_path"`
+	DBPath      string `yaml:"database_path" mapstructure:"database_path"`
 }
 
 func NewConfig(path string, logger *logger.Logger) (*Config, error) {
@@ -46,9 +46,10 @@ func NewConfig(path string, logger *logger.Logger) (*Config, error) {
 	v.BindEnv("database_path", "APP_DATABASE_PATH")
 
 	var cfg Config
-	if err := v.Unmarshal(&cfg);err != nil{
+	if err := v.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("failed unmarshal config: %w", err)
 	}
 
 	return &cfg, nil
 }
+
