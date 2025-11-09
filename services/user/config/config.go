@@ -63,10 +63,6 @@ func NewConfig(path string, logger *logger.Logger) (*Config, error) {
 		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
 
-	if err := cfg.Validate(); err != nil {
-		return nil, fmt.Errorf("config validation failed: %w", err)
-	}
-
 	logger.Info("Configuration loaded",
 		zap.String("addr", cfg.Addr),
 		zap.String("metrics_addr", cfg.MetricsAddr),
