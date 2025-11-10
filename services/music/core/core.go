@@ -1,13 +1,56 @@
 package core
 
 import (
-	"github.com/google/uuid"
+	"context"
+	"errors"
+	"time"
+
 	"github.com/osamikoyo/music-and-marks/services/music/entity"
 )
 
+const DefaultPageSize = 10
+
+var(
+	ErrEmptyField = errors.New("empty field")
+)
+
 type Repository interface {
-	GetAlbumByID(uid uuid.UUID) (*entity.Album, error)
-	GetArtistByID(uid *uuid.UUID) (*entity.Artist, error)
-	ReadAlbums(page_size, page_index int) ([]entity.Album, error)
-	ReadArtist(page_size, page_index int) ([]entity.Artist, error)
+	GetArtistByID(ctx context.Context, id string) (*entity.Artist, error)
+	GetReleaseByID(ctx context.Context) (*entity.Release, error)
+	Search(ctx context.Context, query string, page_size, page_index int) ([]entity.AlbumSearchResult, error)
+}
+
+type MusicCore struct{
+	repo Repository
+	timeout time.Duration
+}
+
+func (mc *MusicCore) context() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), mc.timeout)
+}
+
+func (mc *MusicCore) GetArtist(id string) (*entity.Artist, error) {
+	if len(id) == 0 {
+		return nil, ErrEmptyField
+	}
+
+	ctx, cancel := mc.context()
+	defer cancel()
+	return mc.repo.GetArtistByID(ctx, id)
+}
+
+func (mc *MusicCore) Search(query string, page_index int) ([]entity.AlbumSearchResult, error) {
+	if len(query) == 0 {
+		return nil, ErrEmptyField
+	}
+
+	ctx, cancel := mc.context()
+	defer cancel()
+
+	result, err := mc.repo.Search(ctx, query, DefaultPageSize, page_index)
+	if err == nil{
+		return result, nil
+	}
+
+	
 }
