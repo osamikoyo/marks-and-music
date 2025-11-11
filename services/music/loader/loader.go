@@ -13,12 +13,14 @@ import (
 )
 
 type Loader struct {
-	logger *logger.Logger
+	logger  *logger.Logger
+	timeout time.Duration
 }
 
-func NewLoader(logger *logger.Logger) *Loader {
+func NewLoader(logger *logger.Logger, timeout time.Duration) *Loader {
 	return &Loader{
-		logger: logger,
+		logger:  logger,
+		timeout: timeout,
 	}
 }
 
@@ -31,7 +33,7 @@ func (l *Loader) SearchArtists(query string, limit int) (*SearchResult, error) {
 	url := fmt.Sprintf("%s?query=%s&fmt=json&limit=%d", baseURL, query, limit)
 
 	client := &http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: l.timeout,
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -85,6 +87,11 @@ func (l *Loader) SearchArtists(query string, limit int) (*SearchResult, error) {
 }
 
 func (l *Loader) SearchRelease(query string, limit, offset int) (*ReleaseSearchResult, error) {
+	l.logger.Info("setuping search release request",
+		zap.String("query", query),
+		zap.Int("limit", limit),
+		zap.Int("offset", offset))
+
 	baseURL := "https://musicbrainz.org/ws/2/release"
 	params := url.Values{}
 	params.Add("query", query)
@@ -94,13 +101,17 @@ func (l *Loader) SearchRelease(query string, limit, offset int) (*ReleaseSearchR
 
 	reqURL := baseURL + "?" + params.Encode()
 
-	client := &http.Client{Timeout: 10 * time.Second}
+	client := &http.Client{Timeout: l.timeout}
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
+		l.logger.Error("failed create request",
+			zap.String("url", reqURL),
+			zap.Error(err))
+
 		return nil, err
 	}
 
-	req.Header.Set("User-Agent", "MyGoMusicApp/1.0 (your-email@example.com)")
+	req.Header.Set("User-Agent", "Music-service/1.0")
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := client.Do(req)
