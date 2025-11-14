@@ -20,7 +20,12 @@ type Repository interface {
 	Search(ctx context.Context, query string, page_size, page_index int) ([]entity.AlbumSearchResult, error)
 }
 
+type Fetcher interface{
+	AsyncFetch(query string)
+}
+
 type MusicCore struct{
+	fetcher Fetcher
 	repo Repository
 	timeout time.Duration
 }
@@ -52,5 +57,7 @@ func (mc *MusicCore) Search(query string, page_index int) ([]entity.AlbumSearchR
 		return result, nil
 	}
 
-	
+	mc.fetcher.AsyncFetch(query)
+
+	return nil, errors.New("not found results in db, fetching")
 }
