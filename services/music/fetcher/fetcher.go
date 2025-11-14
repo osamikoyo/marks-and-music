@@ -48,6 +48,11 @@ func (f *Fetcher) Start(ctx context.Context) {
 			f.logger.Info("new query for fetch",
 				zap.String("query", query))
 
+			if err := f.fetch(query); err != nil {
+				f.logger.Error("failed fetch",
+					zap.String("query", query),
+					zap.Error(err))
+			}
 		}
 	}
 }
@@ -84,10 +89,33 @@ func (f *Fetcher) fetch(query string) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
-		return f.repo.CreateArtist(ctx, artist.ToEntity())
+		if err = f.repo.CreateArtist(ctx, artist.ToEntity()); err != nil {
+			f.logger.Error("failed create fetched artist",
+				zap.Any("artist", artist),
+				zap.Error(err))
+
+			return fmt.Errorf("failed create fetched artist: %w", err)
+		}
+
+		return nil
 	})
 
 	g.Go(func() error {
-		
+		if err = f.repo.CreateRelease(ctx, album.ToEntity()); err != nil {
+			f.logger.Error("failed create fetched artist",
+				zap.Any("artist", artist),
+				zap.Error(err))
+
+			return fmt.Errorf("failed create fetched artist: %w", err)
+		}
+
+		return nil
 	})
+
+	if err = g.Wait(); err != nil {
+		f.logger.Error("failed fetch and create artist and album",
+			zap.Error(err))
+	}
+
+	return nil
 }
