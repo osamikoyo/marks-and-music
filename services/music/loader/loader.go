@@ -24,7 +24,7 @@ func NewLoader(logger *logger.Logger, timeout time.Duration) *Loader {
 	}
 }
 
-func (l *Loader) SearchArtists(query string, limit int) (*SearchResult, error) {
+func (l *Loader) SearchArtists(query string, limit int) (*ArtistSearchResult, error) {
 	l.logger.Info("setuping search artists request",
 		zap.String("query", query),
 		zap.Int("limit", limit))
@@ -75,7 +75,7 @@ func (l *Loader) SearchArtists(query string, limit int) (*SearchResult, error) {
 		return nil, fmt.Errorf("failed send response: %w", err)
 	}
 
-	var result SearchResult
+	var result ArtistSearchResult
 	if err := json.Unmarshal(body, &result); err != nil {
 		l.logger.Error("failed parse result",
 			zap.Error(err))
@@ -116,22 +116,35 @@ func (l *Loader) SearchRelease(query string, limit, offset int) (*ReleaseSearchR
 
 	resp, err := client.Do(req)
 	if err != nil {
+		l.logger.Error("failed send request",
+			zap.Error(err))
+
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
+		l.logger.Error("http error",
+			zap.Int("code", resp.StatusCode),
+			zap.Error(err))
+
 		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(body))
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		l.logger.Error("failed read response body",
+			zap.Error(err))
+
 		return nil, err
 	}
 
 	var result ReleaseSearchResult
 	if err := json.Unmarshal(body, &result); err != nil {
+		l.logger.Error("failed unmarshal response body",
+			zap.Error(err))
+
 		return nil, fmt.Errorf("JSON parse error: %w", err)
 	}
 
