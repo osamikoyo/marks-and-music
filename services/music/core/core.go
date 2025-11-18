@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/osamikoyo/music-and-marks/services/music/entity"
 )
 
@@ -12,11 +13,12 @@ const DefaultPageSize = 10
 
 var(
 	ErrEmptyField = errors.New("empty field")
+	ErrUIDFailed = errors.New("failed parse uid")
 )
 
 type Repository interface {
-	GetArtistByID(ctx context.Context, id string) (*entity.Artist, error)
-	GetReleaseByID(ctx context.Context) (*entity.Release, error)
+	GetArtistByID(ctx context.Context, id uuid.UUID) (*entity.Artist, error)
+	GetReleaseByID(ctx context.Context, id uuid.UUID) (*entity.Release, error)
 	Search(ctx context.Context, query string, page_size, page_index int) ([]entity.AlbumSearchResult, error)
 }
 
@@ -39,9 +41,29 @@ func (mc *MusicCore) GetArtist(id string) (*entity.Artist, error) {
 		return nil, ErrEmptyField
 	}
 
+	uid, err := uuid.Parse(id)
+	if err != nil{
+		return nil, ErrUIDFailed
+	}
+
 	ctx, cancel := mc.context()
 	defer cancel()
-	return mc.repo.GetArtistByID(ctx, id)
+	return mc.repo.GetArtistByID(ctx, uid)
+}
+
+func (mc *MusicCore) GetRelease(id string) (*entity.Release, error) {
+	if len(id) == 0 {
+		return nil, ErrEmptyField
+	}
+
+	uid, err := uuid.Parse(id)
+	if err != nil{
+		return nil, ErrUIDFailed
+	}
+
+	ctx, cancel := mc.context()
+	defer cancel()
+	return mc.repo.GetReleaseByID(ctx, uid)
 }
 
 func (mc *MusicCore) Search(query string, page_index int) ([]entity.AlbumSearchResult, error) {
