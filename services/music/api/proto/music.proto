@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+option go_package = "gen/pb/";
+
+service MusicService{
+    rpc GetArtist (GetArtistRequest) returns (GetArtistResponse);
+    rpc GetRelease (GetReleaseRequest) returns (GetReleaseResponse);
+    rpc Search(SearchRequest) returns (SearchResponse);
+}
+
+message Release {
+  string id = 1;                    // UUID
+  string mbid = 2;
+  string title = 3;
+  string release_group_id = 4;
+  optional string status = 7;       // Official, Bootleg
+  optional string country = 8;
+  optional string date = 9;         // "2025-03-14"
+  optional string format = 10;       // CD, Digital File
+  int32 track_count = 11;
+}
+
+message Artist {
+  string id = 1;                    // UUID
+  string name = 2;                 
+  optional string sort_name = 3;
+  optional string country = 4;      // ISO 3166-1 alpha-2
+  optional string type = 5;         // person, group, etc.
+}
+
+message ReadArtistsRequest {
+  int32 page_index = 1;
+  int32 page_size = 2;
+}
+
+message ReadArtistsResponse {
+  repeated Artist artists = 1;
+}
+
+message ReadReleasesRequest {
+  int32 page_index = 1;
+  int32 page_size = 2;
+}
+
+message ReadReleasesResponse {
+  repeated Release releases = 1;
+}
+
+message GetReleaseRequest {
+    string id = 1;
+}
+
+message GetReleaseResponse{
+    Release release = 1;
+}
+
+message GetArtistRequest {
+    string id = 1;
+}
+
+message GetArtistResponse {
+    Artist artist = 1;
+}
+
+message SearchRequest{
+    string query = 1;
+}
+
+message SearchResponse{
+    optional Release release = 1;
+    optional Artist artist = 2;
+}
