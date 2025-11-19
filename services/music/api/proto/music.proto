@@ -6,6 +6,8 @@ service MusicService{
     rpc GetArtist (GetArtistRequest) returns (GetArtistResponse);
     rpc GetRelease (GetReleaseRequest) returns (GetReleaseResponse);
     rpc Search(SearchRequest) returns (SearchResponse);
+    rpc ReadArtists(ReadArtistsRequest) returns (ReadArtistsResponse); 
+    rpc ReadReleases(ReadReleasesRequest) returns (ReadReleasesResponse);
 }
 
 message Release {
@@ -28,6 +30,11 @@ message Artist {
   optional string type = 5;         // person, group, etc.
 }
 
+message ReadReleasesRequest {
+  int32 page_index = 1;
+  int32 page_size = 2;
+}
+
 message ReadArtistsRequest {
   int32 page_index = 1;
   int32 page_size = 2;
@@ -37,10 +44,6 @@ message ReadArtistsResponse {
   repeated Artist artists = 1;
 }
 
-message ReadReleasesRequest {
-  int32 page_index = 1;
-  int32 page_size = 2;
-}
 
 message ReadReleasesResponse {
   repeated Release releases = 1;
