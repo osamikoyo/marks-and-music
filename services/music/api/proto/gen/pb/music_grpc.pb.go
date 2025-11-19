@@ -19,9 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MusicService_GetArtist_FullMethodName  = "/MusicService/GetArtist"
-	MusicService_GetRelease_FullMethodName = "/MusicService/GetRelease"
-	MusicService_Search_FullMethodName     = "/MusicService/Search"
+	MusicService_GetArtist_FullMethodName    = "/MusicService/GetArtist"
+	MusicService_GetRelease_FullMethodName   = "/MusicService/GetRelease"
+	MusicService_Search_FullMethodName       = "/MusicService/Search"
+	MusicService_ReadArtists_FullMethodName  = "/MusicService/ReadArtists"
+	MusicService_ReadReleases_FullMethodName = "/MusicService/ReadReleases"
 )
 
 // MusicServiceClient is the client API for MusicService service.
@@ -31,6 +33,8 @@ type MusicServiceClient interface {
 	GetArtist(ctx context.Context, in *GetArtistRequest, opts ...grpc.CallOption) (*GetArtistResponse, error)
 	GetRelease(ctx context.Context, in *GetReleaseRequest, opts ...grpc.CallOption) (*GetReleaseResponse, error)
 	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error)
+	ReadArtists(ctx context.Context, in *ReadArtistsRequest, opts ...grpc.CallOption) (*ReadArtistsResponse, error)
+	ReadReleases(ctx context.Context, in *ReadReleasesRequest, opts ...grpc.CallOption) (*ReadReleasesResponse, error)
 }
 
 type musicServiceClient struct {
@@ -71,6 +75,26 @@ func (c *musicServiceClient) Search(ctx context.Context, in *SearchRequest, opts
 	return out, nil
 }
 
+func (c *musicServiceClient) ReadArtists(ctx context.Context, in *ReadArtistsRequest, opts ...grpc.CallOption) (*ReadArtistsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReadArtistsResponse)
+	err := c.cc.Invoke(ctx, MusicService_ReadArtists_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *musicServiceClient) ReadReleases(ctx context.Context, in *ReadReleasesRequest, opts ...grpc.CallOption) (*ReadReleasesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReadReleasesResponse)
+	err := c.cc.Invoke(ctx, MusicService_ReadReleases_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MusicServiceServer is the server API for MusicService service.
 // All implementations must embed UnimplementedMusicServiceServer
 // for forward compatibility.
@@ -78,6 +102,8 @@ type MusicServiceServer interface {
 	GetArtist(context.Context, *GetArtistRequest) (*GetArtistResponse, error)
 	GetRelease(context.Context, *GetReleaseRequest) (*GetReleaseResponse, error)
 	Search(context.Context, *SearchRequest) (*SearchResponse, error)
+	ReadArtists(context.Context, *ReadArtistsRequest) (*ReadArtistsResponse, error)
+	ReadReleases(context.Context, *ReadReleasesRequest) (*ReadReleasesResponse, error)
 	mustEmbedUnimplementedMusicServiceServer()
 }
 
@@ -96,6 +122,12 @@ func (UnimplementedMusicServiceServer) GetRelease(context.Context, *GetReleaseRe
 }
 func (UnimplementedMusicServiceServer) Search(context.Context, *SearchRequest) (*SearchResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
+}
+func (UnimplementedMusicServiceServer) ReadArtists(context.Context, *ReadArtistsRequest) (*ReadArtistsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReadArtists not implemented")
+}
+func (UnimplementedMusicServiceServer) ReadReleases(context.Context, *ReadReleasesRequest) (*ReadReleasesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReadReleases not implemented")
 }
 func (UnimplementedMusicServiceServer) mustEmbedUnimplementedMusicServiceServer() {}
 func (UnimplementedMusicServiceServer) testEmbeddedByValue()                      {}
@@ -172,6 +204,42 @@ func _MusicService_Search_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MusicService_ReadArtists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReadArtistsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MusicServiceServer).ReadArtists(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MusicService_ReadArtists_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MusicServiceServer).ReadArtists(ctx, req.(*ReadArtistsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MusicService_ReadReleases_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReadReleasesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MusicServiceServer).ReadReleases(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MusicService_ReadReleases_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MusicServiceServer).ReadReleases(ctx, req.(*ReadReleasesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MusicService_ServiceDesc is the grpc.ServiceDesc for MusicService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +258,14 @@ var MusicService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Search",
 			Handler:    _MusicService_Search_Handler,
+		},
+		{
+			MethodName: "ReadArtists",
+			Handler:    _MusicService_ReadArtists_Handler,
+		},
+		{
+			MethodName: "ReadReleases",
+			Handler:    _MusicService_ReadReleases_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
