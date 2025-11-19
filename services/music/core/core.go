@@ -11,24 +11,25 @@ import (
 
 const DefaultPageSize = 10
 
-var(
+var (
 	ErrEmptyField = errors.New("empty field")
-	ErrUIDFailed = errors.New("failed parse uid")
+	ErrUIDFailed  = errors.New("failed parse uid")
 )
 
 type Repository interface {
 	GetArtistByID(ctx context.Context, id uuid.UUID) (*entity.Artist, error)
 	GetReleaseByID(ctx context.Context, id uuid.UUID) (*entity.Release, error)
 	Search(ctx context.Context, query string, page_size, page_index int) ([]entity.AlbumSearchResult, error)
+	ReadArtists(ctx context.Context, page_size, page_index int) ([]entity.Artist, error)
 }
 
-type Fetcher interface{
+type Fetcher interface {
 	AsyncFetch(query string)
 }
 
-type MusicCore struct{
+type MusicCore struct {
 	fetcher Fetcher
-	repo Repository
+	repo    Repository
 	timeout time.Duration
 }
 
@@ -42,7 +43,7 @@ func (mc *MusicCore) GetArtist(id string) (*entity.Artist, error) {
 	}
 
 	uid, err := uuid.Parse(id)
-	if err != nil{
+	if err != nil {
 		return nil, ErrUIDFailed
 	}
 
@@ -57,7 +58,7 @@ func (mc *MusicCore) GetRelease(id string) (*entity.Release, error) {
 	}
 
 	uid, err := uuid.Parse(id)
-	if err != nil{
+	if err != nil {
 		return nil, ErrUIDFailed
 	}
 
@@ -75,7 +76,7 @@ func (mc *MusicCore) Search(query string, page_index int) ([]entity.AlbumSearchR
 	defer cancel()
 
 	result, err := mc.repo.Search(ctx, query, DefaultPageSize, page_index)
-	if err == nil{
+	if err == nil {
 		return result, nil
 	}
 
