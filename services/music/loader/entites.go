@@ -1,5 +1,7 @@
 package loader
 
+import "github.com/osamikoyo/music-and-marks/services/music/entity"
+
 type Release struct {
     ID             string   `json:"id"`
     Title          string   `json:"title"`
@@ -36,6 +38,31 @@ type Release struct {
     } `json:"artist-credit"`
 }
 
+func (r *Release) ToEntity() *entity.Release {
+    var date *string
+    if r.Date != "" {
+        date = &r.Date
+    }
+
+    var format string
+    var trackCount int
+    if len(r.Media) > 0 {
+        format = r.Media[0].Format
+        trackCount = r.Media[0].TrackCount
+    }
+
+    return &entity.Release{
+        MBID:           r.ID,
+        Title:          r.Title,
+        ReleaseGroupID: r.ReleaseGroup.ID,
+        Status:         r.Status,
+        Country:        r.Country,
+        Date:           date,
+        Format:         format,
+        TrackCount:     trackCount,
+    }
+}
+
 type ReleaseSearchResult struct {
     Created   string    `json:"created"`
     Count     int       `json:"count"`
@@ -56,7 +83,17 @@ type Artist struct {
     EndDate     string `json:"end-date,omitempty"`
 }
 
-type SearchResult struct {
+func (a *Artist) ToEntity() *entity.Artist {
+    return &entity.Artist{
+        ID: a.ID,
+        Name: a.Name,
+        Country: a.Country,
+        Type: a.Type,
+        SortName: a.SortName,
+    }
+}
+
+type ArtistSearchResult struct {
     Created string    `json:"created"`
     Count   int       `json:"count"`
     Offset  int       `json:"offset"`
