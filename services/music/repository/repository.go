@@ -169,3 +169,57 @@ func (r *Repository) GetArtistByID(ctx context.Context, id uuid.UUID) (*entity.A
 		zap.Any("artist", artist))
 	return &artist, nil
 }
+
+func (r *Repository) ReadArtists(ctx context.Context, page_size, page_index int) ([]entity.Artist, error) {
+	r.logger.Info("fetching artists",
+		zap.Int("page_size", page_size),
+		zap.Int("page_index", page_index))
+
+	var artists []entity.Artist
+
+	offset := (page_index - 1) * page_size
+
+	res := r.db.Limit(page_size).Offset(offset).Find(&artists)
+	if res.RowsAffected == 0 {
+		r.logger.Error("artists not found")
+
+		return nil, ErrNotFound
+	}
+	if err := res.Error; err != nil {
+		r.logger.Error("failed fetch artists",
+			zap.Error(err))
+
+		return nil, ErrInternal
+	}
+
+	r.logger.Info("artists have been successfully fetched")
+
+	return artists, nil
+}
+
+func (r *Repository) ReadReleases(ctx context.Context, page_size, page_index int) ([]entity.Release, error) {
+	r.logger.Info("fetching releases",
+		zap.Int("page_size", page_size),
+		zap.Int("page_index", page_index))
+
+	var releases []entity.Release
+
+	offset := (page_index - 1) * page_size
+
+	res := r.db.Limit(page_size).Offset(offset).Find(&releases)
+	if res.RowsAffected == 0 {
+		r.logger.Error("releases not found")
+
+		return nil, ErrNotFound
+	}
+	if err := res.Error; err != nil {
+		r.logger.Error("failed fetch release",
+			zap.Error(err))
+
+		return nil, ErrInternal
+	}
+
+	r.logger.Info("releases have been successfully fetched")
+
+	return releases, nil
+}
