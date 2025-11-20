@@ -52,4 +52,3 @@ func NewConfig(path string, logger *logger.Logger) (*Config, error) {
 
 	return &cfg, nil
 }
-
