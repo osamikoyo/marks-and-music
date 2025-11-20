@@ -129,6 +129,98 @@ func (x *Release) GetTrackCount() int32 {
 	return 0
 }
 
+type SearchResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Mbid          string                 `protobuf:"bytes,2,opt,name=mbid,proto3" json:"mbid,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	ArtistName    string                 `protobuf:"bytes,4,opt,name=artist_name,json=artistName,proto3" json:"artist_name,omitempty"`
+	Type          string                 `protobuf:"bytes,5,opt,name=type,proto3" json:"type,omitempty"`
+	ReleaseDate   *string                `protobuf:"bytes,6,opt,name=release_date,json=releaseDate,proto3,oneof" json:"release_date,omitempty"`
+	Relevance     float32                `protobuf:"fixed32,7,opt,name=relevance,proto3" json:"relevance,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchResult) Reset() {
+	*x = SearchResult{}
+	mi := &file_music_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchResult) ProtoMessage() {}
+
+func (x *SearchResult) ProtoReflect() protoreflect.Message {
+	mi := &file_music_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchResult.ProtoReflect.Descriptor instead.
+func (*SearchResult) Descriptor() ([]byte, []int) {
+	return file_music_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SearchResult) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *SearchResult) GetMbid() string {
+	if x != nil {
+		return x.Mbid
+	}
+	return ""
+}
+
+func (x *SearchResult) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *SearchResult) GetArtistName() string {
+	if x != nil {
+		return x.ArtistName
+	}
+	return ""
+}
+
+func (x *SearchResult) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *SearchResult) GetReleaseDate() string {
+	if x != nil && x.ReleaseDate != nil {
+		return *x.ReleaseDate
+	}
+	return ""
+}
+
+func (x *SearchResult) GetRelevance() float32 {
+	if x != nil {
+		return x.Relevance
+	}
+	return 0
+}
+
 type Artist struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // UUID
@@ -142,7 +234,7 @@ type Artist struct {
 
 func (x *Artist) Reset() {
 	*x = Artist{}
-	mi := &file_music_proto_msgTypes[1]
+	mi := &file_music_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -154,7 +246,7 @@ func (x *Artist) String() string {
 func (*Artist) ProtoMessage() {}
 
 func (x *Artist) ProtoReflect() protoreflect.Message {
-	mi := &file_music_proto_msgTypes[1]
+	mi := &file_music_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -167,7 +259,7 @@ func (x *Artist) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Artist.ProtoReflect.Descriptor instead.
 func (*Artist) Descriptor() ([]byte, []int) {
-	return file_music_proto_rawDescGZIP(), []int{1}
+	return file_music_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Artist) GetId() string {
@@ -215,7 +307,7 @@ type ReadReleasesRequest struct {
 
 func (x *ReadReleasesRequest) Reset() {
 	*x = ReadReleasesRequest{}
-	mi := &file_music_proto_msgTypes[2]
+	mi := &file_music_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -227,7 +319,7 @@ func (x *ReadReleasesRequest) String() string {
 func (*ReadReleasesRequest) ProtoMessage() {}
 
 func (x *ReadReleasesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_music_proto_msgTypes[2]
+	mi := &file_music_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -240,7 +332,7 @@ func (x *ReadReleasesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadReleasesRequest.ProtoReflect.Descriptor instead.
 func (*ReadReleasesRequest) Descriptor() ([]byte, []int) {
-	return file_music_proto_rawDescGZIP(), []int{2}
+	return file_music_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ReadReleasesRequest) GetPageIndex() int32 {
@@ -267,7 +359,7 @@ type ReadArtistsRequest struct {
 
 func (x *ReadArtistsRequest) Reset() {
 	*x = ReadArtistsRequest{}
-	mi := &file_music_proto_msgTypes[3]
+	mi := &file_music_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -279,7 +371,7 @@ func (x *ReadArtistsRequest) String() string {
 func (*ReadArtistsRequest) ProtoMessage() {}
 
 func (x *ReadArtistsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_music_proto_msgTypes[3]
+	mi := &file_music_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -292,7 +384,7 @@ func (x *ReadArtistsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadArtistsRequest.ProtoReflect.Descriptor instead.
 func (*ReadArtistsRequest) Descriptor() ([]byte, []int) {
-	return file_music_proto_rawDescGZIP(), []int{3}
+	return file_music_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ReadArtistsRequest) GetPageIndex() int32 {
@@ -318,7 +410,7 @@ type ReadArtistsResponse struct {
 
 func (x *ReadArtistsResponse) Reset() {
 	*x = ReadArtistsResponse{}
-	mi := &file_music_proto_msgTypes[4]
+	mi := &file_music_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -330,7 +422,7 @@ func (x *ReadArtistsResponse) String() string {
 func (*ReadArtistsResponse) ProtoMessage() {}
 
 func (x *ReadArtistsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_music_proto_msgTypes[4]
+	mi := &file_music_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -343,7 +435,7 @@ func (x *ReadArtistsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadArtistsResponse.ProtoReflect.Descriptor instead.
 func (*ReadArtistsResponse) Descriptor() ([]byte, []int) {
-	return file_music_proto_rawDescGZIP(), []int{4}
+	return file_music_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ReadArtistsResponse) GetArtists() []*Artist {
@@ -362,7 +454,7 @@ type ReadReleasesResponse struct {
 
 func (x *ReadReleasesResponse) Reset() {
 	*x = ReadReleasesResponse{}
-	mi := &file_music_proto_msgTypes[5]
+	mi := &file_music_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -374,7 +466,7 @@ func (x *ReadReleasesResponse) String() string {
 func (*ReadReleasesResponse) ProtoMessage() {}
 
 func (x *ReadReleasesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_music_proto_msgTypes[5]
+	mi := &file_music_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -387,7 +479,7 @@ func (x *ReadReleasesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadReleasesResponse.ProtoReflect.Descriptor instead.
 func (*ReadReleasesResponse) Descriptor() ([]byte, []int) {
-	return file_music_proto_rawDescGZIP(), []int{5}
+	return file_music_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ReadReleasesResponse) GetReleases() []*Release {
@@ -406,7 +498,7 @@ type GetReleaseRequest struct {
 
 func (x *GetReleaseRequest) Reset() {
 	*x = GetReleaseRequest{}
-	mi := &file_music_proto_msgTypes[6]
+	mi := &file_music_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -418,7 +510,7 @@ func (x *GetReleaseRequest) String() string {
 func (*GetReleaseRequest) ProtoMessage() {}
 
 func (x *GetReleaseRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_music_proto_msgTypes[6]
+	mi := &file_music_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -431,7 +523,7 @@ func (x *GetReleaseRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReleaseRequest.ProtoReflect.Descriptor instead.
 func (*GetReleaseRequest) Descriptor() ([]byte, []int) {
-	return file_music_proto_rawDescGZIP(), []int{6}
+	return file_music_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetReleaseRequest) GetId() string {
@@ -450,7 +542,7 @@ type GetReleaseResponse struct {
 
 func (x *GetReleaseResponse) Reset() {
 	*x = GetReleaseResponse{}
-	mi := &file_music_proto_msgTypes[7]
+	mi := &file_music_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -462,7 +554,7 @@ func (x *GetReleaseResponse) String() string {
 func (*GetReleaseResponse) ProtoMessage() {}
 
 func (x *GetReleaseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_music_proto_msgTypes[7]
+	mi := &file_music_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -475,7 +567,7 @@ func (x *GetReleaseResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReleaseResponse.ProtoReflect.Descriptor instead.
 func (*GetReleaseResponse) Descriptor() ([]byte, []int) {
-	return file_music_proto_rawDescGZIP(), []int{7}
+	return file_music_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetReleaseResponse) GetRelease() *Release {
@@ -494,7 +586,7 @@ type GetArtistRequest struct {
 
 func (x *GetArtistRequest) Reset() {
 	*x = GetArtistRequest{}
-	mi := &file_music_proto_msgTypes[8]
+	mi := &file_music_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -506,7 +598,7 @@ func (x *GetArtistRequest) String() string {
 func (*GetArtistRequest) ProtoMessage() {}
 
 func (x *GetArtistRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_music_proto_msgTypes[8]
+	mi := &file_music_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -519,7 +611,7 @@ func (x *GetArtistRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetArtistRequest.ProtoReflect.Descriptor instead.
 func (*GetArtistRequest) Descriptor() ([]byte, []int) {
-	return file_music_proto_rawDescGZIP(), []int{8}
+	return file_music_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetArtistRequest) GetId() string {
@@ -538,7 +630,7 @@ type GetArtistResponse struct {
 
 func (x *GetArtistResponse) Reset() {
 	*x = GetArtistResponse{}
-	mi := &file_music_proto_msgTypes[9]
+	mi := &file_music_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -550,7 +642,7 @@ func (x *GetArtistResponse) String() string {
 func (*GetArtistResponse) ProtoMessage() {}
 
 func (x *GetArtistResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_music_proto_msgTypes[9]
+	mi := &file_music_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -563,7 +655,7 @@ func (x *GetArtistResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetArtistResponse.ProtoReflect.Descriptor instead.
 func (*GetArtistResponse) Descriptor() ([]byte, []int) {
-	return file_music_proto_rawDescGZIP(), []int{9}
+	return file_music_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetArtistResponse) GetArtist() *Artist {
@@ -575,6 +667,8 @@ func (x *GetArtistResponse) GetArtist() *Artist {
 
 type SearchRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	PageSize      int32                  `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	PageIndex     int32                  `protobuf:"varint,2,opt,name=page_index,json=pageIndex,proto3" json:"page_index,omitempty"`
 	Query         string                 `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -582,7 +676,7 @@ type SearchRequest struct {
 
 func (x *SearchRequest) Reset() {
 	*x = SearchRequest{}
-	mi := &file_music_proto_msgTypes[10]
+	mi := &file_music_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -594,7 +688,7 @@ func (x *SearchRequest) String() string {
 func (*SearchRequest) ProtoMessage() {}
 
 func (x *SearchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_music_proto_msgTypes[10]
+	mi := &file_music_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -607,7 +701,21 @@ func (x *SearchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchRequest.ProtoReflect.Descriptor instead.
 func (*SearchRequest) Descriptor() ([]byte, []int) {
-	return file_music_proto_rawDescGZIP(), []int{10}
+	return file_music_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *SearchRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *SearchRequest) GetPageIndex() int32 {
+	if x != nil {
+		return x.PageIndex
+	}
+	return 0
 }
 
 func (x *SearchRequest) GetQuery() string {
@@ -619,15 +727,14 @@ func (x *SearchRequest) GetQuery() string {
 
 type SearchResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Release       *Release               `protobuf:"bytes,1,opt,name=release,proto3,oneof" json:"release,omitempty"`
-	Artist        *Artist                `protobuf:"bytes,2,opt,name=artist,proto3,oneof" json:"artist,omitempty"`
+	Results       []*SearchResult        `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SearchResponse) Reset() {
 	*x = SearchResponse{}
-	mi := &file_music_proto_msgTypes[11]
+	mi := &file_music_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -639,7 +746,7 @@ func (x *SearchResponse) String() string {
 func (*SearchResponse) ProtoMessage() {}
 
 func (x *SearchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_music_proto_msgTypes[11]
+	mi := &file_music_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -652,19 +759,12 @@ func (x *SearchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchResponse.ProtoReflect.Descriptor instead.
 func (*SearchResponse) Descriptor() ([]byte, []int) {
-	return file_music_proto_rawDescGZIP(), []int{11}
+	return file_music_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *SearchResponse) GetRelease() *Release {
+func (x *SearchResponse) GetResults() []*SearchResult {
 	if x != nil {
-		return x.Release
-	}
-	return nil
-}
-
-func (x *SearchResponse) GetArtist() *Artist {
-	if x != nil {
-		return x.Artist
+		return x.Results
 	}
 	return nil
 }
@@ -690,7 +790,17 @@ const file_music_proto_rawDesc = "" +
 	"\n" +
 	"\b_countryB\a\n" +
 	"\x05_dateB\t\n" +
-	"\a_format\"\xa9\x01\n" +
+	"\a_format\"\xd4\x01\n" +
+	"\fSearchResult\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04mbid\x18\x02 \x01(\tR\x04mbid\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x1f\n" +
+	"\vartist_name\x18\x04 \x01(\tR\n" +
+	"artistName\x12\x12\n" +
+	"\x04type\x18\x05 \x01(\tR\x04type\x12&\n" +
+	"\frelease_date\x18\x06 \x01(\tH\x00R\vreleaseDate\x88\x01\x01\x12\x1c\n" +
+	"\trelevance\x18\a \x01(\x02R\trelevanceB\x0f\n" +
+	"\r_release_date\"\xa9\x01\n" +
 	"\x06Artist\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -721,15 +831,14 @@ const file_music_proto_rawDesc = "" +
 	"\x10GetArtistRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"4\n" +
 	"\x11GetArtistResponse\x12\x1f\n" +
-	"\x06artist\x18\x01 \x01(\v2\a.ArtistR\x06artist\"%\n" +
-	"\rSearchRequest\x12\x14\n" +
-	"\x05query\x18\x01 \x01(\tR\x05query\"v\n" +
-	"\x0eSearchResponse\x12'\n" +
-	"\arelease\x18\x01 \x01(\v2\b.ReleaseH\x00R\arelease\x88\x01\x01\x12$\n" +
-	"\x06artist\x18\x02 \x01(\v2\a.ArtistH\x01R\x06artist\x88\x01\x01B\n" +
+	"\x06artist\x18\x01 \x01(\v2\a.ArtistR\x06artist\"a\n" +
+	"\rSearchRequest\x12\x1b\n" +
+	"\tpage_size\x18\x03 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
-	"\b_releaseB\t\n" +
-	"\a_artist2\x9b\x02\n" +
+	"page_index\x18\x02 \x01(\x05R\tpageIndex\x12\x14\n" +
+	"\x05query\x18\x01 \x01(\tR\x05query\"9\n" +
+	"\x0eSearchResponse\x12'\n" +
+	"\aresults\x18\x01 \x03(\v2\r.SearchResultR\aresults2\x9b\x02\n" +
 	"\fMusicService\x122\n" +
 	"\tGetArtist\x12\x11.GetArtistRequest\x1a\x12.GetArtistResponse\x125\n" +
 	"\n" +
@@ -750,43 +859,43 @@ func file_music_proto_rawDescGZIP() []byte {
 	return file_music_proto_rawDescData
 }
 
-var file_music_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_music_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_music_proto_goTypes = []any{
 	(*Release)(nil),              // 0: Release
-	(*Artist)(nil),               // 1: Artist
-	(*ReadReleasesRequest)(nil),  // 2: ReadReleasesRequest
-	(*ReadArtistsRequest)(nil),   // 3: ReadArtistsRequest
-	(*ReadArtistsResponse)(nil),  // 4: ReadArtistsResponse
-	(*ReadReleasesResponse)(nil), // 5: ReadReleasesResponse
-	(*GetReleaseRequest)(nil),    // 6: GetReleaseRequest
-	(*GetReleaseResponse)(nil),   // 7: GetReleaseResponse
-	(*GetArtistRequest)(nil),     // 8: GetArtistRequest
-	(*GetArtistResponse)(nil),    // 9: GetArtistResponse
-	(*SearchRequest)(nil),        // 10: SearchRequest
-	(*SearchResponse)(nil),       // 11: SearchResponse
+	(*SearchResult)(nil),         // 1: SearchResult
+	(*Artist)(nil),               // 2: Artist
+	(*ReadReleasesRequest)(nil),  // 3: ReadReleasesRequest
+	(*ReadArtistsRequest)(nil),   // 4: ReadArtistsRequest
+	(*ReadArtistsResponse)(nil),  // 5: ReadArtistsResponse
+	(*ReadReleasesResponse)(nil), // 6: ReadReleasesResponse
+	(*GetReleaseRequest)(nil),    // 7: GetReleaseRequest
+	(*GetReleaseResponse)(nil),   // 8: GetReleaseResponse
+	(*GetArtistRequest)(nil),     // 9: GetArtistRequest
+	(*GetArtistResponse)(nil),    // 10: GetArtistResponse
+	(*SearchRequest)(nil),        // 11: SearchRequest
+	(*SearchResponse)(nil),       // 12: SearchResponse
 }
 var file_music_proto_depIdxs = []int32{
-	1,  // 0: ReadArtistsResponse.artists:type_name -> Artist
+	2,  // 0: ReadArtistsResponse.artists:type_name -> Artist
 	0,  // 1: ReadReleasesResponse.releases:type_name -> Release
 	0,  // 2: GetReleaseResponse.release:type_name -> Release
-	1,  // 3: GetArtistResponse.artist:type_name -> Artist
-	0,  // 4: SearchResponse.release:type_name -> Release
-	1,  // 5: SearchResponse.artist:type_name -> Artist
-	8,  // 6: MusicService.GetArtist:input_type -> GetArtistRequest
-	6,  // 7: MusicService.GetRelease:input_type -> GetReleaseRequest
-	10, // 8: MusicService.Search:input_type -> SearchRequest
-	3,  // 9: MusicService.ReadArtists:input_type -> ReadArtistsRequest
-	2,  // 10: MusicService.ReadReleases:input_type -> ReadReleasesRequest
-	9,  // 11: MusicService.GetArtist:output_type -> GetArtistResponse
-	7,  // 12: MusicService.GetRelease:output_type -> GetReleaseResponse
-	11, // 13: MusicService.Search:output_type -> SearchResponse
-	4,  // 14: MusicService.ReadArtists:output_type -> ReadArtistsResponse
-	5,  // 15: MusicService.ReadReleases:output_type -> ReadReleasesResponse
-	11, // [11:16] is the sub-list for method output_type
-	6,  // [6:11] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	2,  // 3: GetArtistResponse.artist:type_name -> Artist
+	1,  // 4: SearchResponse.results:type_name -> SearchResult
+	9,  // 5: MusicService.GetArtist:input_type -> GetArtistRequest
+	7,  // 6: MusicService.GetRelease:input_type -> GetReleaseRequest
+	11, // 7: MusicService.Search:input_type -> SearchRequest
+	4,  // 8: MusicService.ReadArtists:input_type -> ReadArtistsRequest
+	3,  // 9: MusicService.ReadReleases:input_type -> ReadReleasesRequest
+	10, // 10: MusicService.GetArtist:output_type -> GetArtistResponse
+	8,  // 11: MusicService.GetRelease:output_type -> GetReleaseResponse
+	12, // 12: MusicService.Search:output_type -> SearchResponse
+	5,  // 13: MusicService.ReadArtists:output_type -> ReadArtistsResponse
+	6,  // 14: MusicService.ReadReleases:output_type -> ReadReleasesResponse
+	10, // [10:15] is the sub-list for method output_type
+	5,  // [5:10] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_music_proto_init() }
@@ -796,14 +905,14 @@ func file_music_proto_init() {
 	}
 	file_music_proto_msgTypes[0].OneofWrappers = []any{}
 	file_music_proto_msgTypes[1].OneofWrappers = []any{}
-	file_music_proto_msgTypes[11].OneofWrappers = []any{}
+	file_music_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_music_proto_rawDesc), len(file_music_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
