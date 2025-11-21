@@ -22,6 +22,16 @@ message Release {
   int32 track_count = 11;
 }
 
+message SearchResult {
+  string id = 1;
+  string mbid = 2;
+  string title = 3;
+  string artist_name = 4;
+  string type = 5;
+  optional string release_date = 6;
+  float relevance = 7;
+}
+
 message Artist {
   string id = 1;                    // UUID
   string name = 2;                 
@@ -66,10 +76,11 @@ message GetArtistResponse {
 }
 
 message SearchRequest{
+    int32 page_size = 3;
+    int32 page_index = 2;
     string query = 1;
 }
 
 message SearchResponse{
-    optional Release release = 1;
-    optional Artist artist = 2;
+  repeated SearchResult results = 1;
 }
