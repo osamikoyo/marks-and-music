@@ -9,8 +9,6 @@ import (
 	"github.com/osamikoyo/music-and-marks/services/music/entity"
 )
 
-const DefaultPageSize = 10
-
 var (
 	ErrEmptyField = errors.New("empty field")
 	ErrUIDFailed  = errors.New("failed parse uid")
@@ -20,9 +18,9 @@ var (
 type Repository interface {
 	GetArtistByID(ctx context.Context, id uuid.UUID) (*entity.Artist, error)
 	GetReleaseByID(ctx context.Context, id uuid.UUID) (*entity.Release, error)
-	Search(ctx context.Context, query string, page_size, page_index int) ([]entity.SearchResult, error)
-	ReadArtists(ctx context.Context, page_size, page_index int) ([]entity.Artist, error)
-	ReadReleases(ctx context.Context, page_size, page_index int) ([]entity.Release, error)
+	Search(ctx context.Context, query string, pageSize, pageIndex int) ([]entity.SearchResult, error)
+	ReadArtists(ctx context.Context, pageSize, pageIndex int) ([]entity.Artist, error)
+	ReadReleases(ctx context.Context, pageSize, pageIndex int) ([]entity.Release, error)
 }
 
 type Fetcher interface {
@@ -69,7 +67,7 @@ func (mc *MusicCore) GetRelease(id string) (*entity.Release, error) {
 	return mc.repo.GetReleaseByID(ctx, uid)
 }
 
-func (mc *MusicCore) Search(query string, page_index int) ([]entity.AlbumSearchResult, error) {
+func (mc *MusicCore) Search(query string, pageIndex, pageSize int) ([]entity.SearchResult, error) {
 	if len(query) == 0 {
 		return nil, ErrEmptyField
 	}
@@ -77,7 +75,7 @@ func (mc *MusicCore) Search(query string, page_index int) ([]entity.AlbumSearchR
 	ctx, cancel := mc.context()
 	defer cancel()
 
-	result, err := mc.repo.Search(ctx, query, DefaultPageSize, page_index)
+	result, err := mc.repo.Search(ctx, query, pageSize, pageIndex)
 	if err == nil {
 		return result, nil
 	}
@@ -87,19 +85,19 @@ func (mc *MusicCore) Search(query string, page_index int) ([]entity.AlbumSearchR
 	return nil, errors.New("not found results in db, fetching")
 }
 
-func (mc *MusicCore) ReadArtists(page_size, page_index int) ([]entity.Artist, error) {
-	if page_size == 0 {
+func (mc *MusicCore) ReadArtists(pageSize, pageIndex int) ([]entity.Artist, error) {
+	if pageSize == 0 {
 		return nil, nil
 	}
 
-	if page_index < 0 {
+	if pageIndex < 0 {
 		return nil, ErrPageIndex
 	}
 
 	ctx, cancel := mc.context()
 	defer cancel()
 
-	artists, err := mc.repo.ReadArtists(ctx, page_size, page_index)
+	artists, err := mc.repo.ReadArtists(ctx, pageSize, pageIndex)
 	if err != nil {
 		return nil, err
 	}
@@ -107,19 +105,19 @@ func (mc *MusicCore) ReadArtists(page_size, page_index int) ([]entity.Artist, er
 	return artists, nil
 }
 
-func (mc *MusicCore) ReadReleases(page_size, page_index int) ([]entity.Release, error) {
-	if page_size == 0 {
+func (mc *MusicCore) ReadReleases(pageSize, pageIndex int) ([]entity.Release, error) {
+	if pageSize == 0 {
 		return nil, nil
 	}
 
-	if page_index < 0 {
+	if pageIndex < 0 {
 		return nil, ErrPageIndex
 	}
 
 	ctx, cancel := mc.context()
 	defer cancel()
 
-	albums, err := mc.repo.ReadReleases(ctx, page_size, page_index)
+	albums, err := mc.repo.ReadReleases(ctx, pageSize, pageIndex)
 	if err != nil {
 		return nil, err
 	}
