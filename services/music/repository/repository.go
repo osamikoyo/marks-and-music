@@ -29,6 +29,7 @@ func NewRepository(db *gorm.DB, logger *logger.Logger) *Repository {
 		logger: logger,
 	}
 }
+
 func (r *Repository) CreateReleaseGroup(ctx context.Context, rg *entity.ReleaseGroup) error {
 	if rg == nil {
 		return ErrNilInput
@@ -77,42 +78,85 @@ func (r *Repository) CreateArtist(ctx context.Context, artist *entity.Artist) er
 	return ErrNilInput
 }
 
-func (r *Repository) Search(ctx context.Context, query string, page_size, page_index int) ([]entity.AlbumSearchResult, error) {
-	db := r.db.WithContext(ctx).Model(&entity.ReleaseGroup{}).
-		Select(`
-        rg.id,
-        rg.mbid,
-        rg.title,
-        a.name AS artist_name,
-        rg.first_release_date,
-        COALESCE(AVG(r.rating), 0) AS avg_rating,
-        COUNT(r.id) AS review_count,
-        similarity(rg.title, ?) AS relevance
-    `, query).
-		Joins("JOIN artists a ON rg.artist_id = a.id").
-		Joins("LEFT JOIN reviews r ON r.target_id = rg.id AND r.target_type = 'album'")
+func (r *Repository) Search(ctx context.Context, query string, pageSize, pageIndex int) ([]entity.SearchResult, error) {
+	if query == "" {
+		return nil, ErrNilInput
+	}
 
-	db = db.Where(`
-    rg.title ILIKE ? OR 
-    similarity(rg.title, ?) > 0.3
-`, "%"+query+"%", query)
+	queryParam := query
+	likeQuery := "%" + query + "%"
+	offset := (pageIndex - 1) * pageSize
 
-	db = db.Group("rg.id").Group("a.name")
+	var results []entity.SearchResult
 
-	db = db.Having("similarity(rg.title, ?) > 0.2", query)
+	err := r.db.WithContext(ctx).Raw(`
+        SELECT 
+            id,
+            mbid,
+            title,
+            artist_name,
+            type,
+            release_date,
+            COALESCE(avg_rating, 0) AS avg_rating,
+            COALESCE(review_count, 0) AS review_count,
+            relevance
+        FROM (
+            -- Поиск по релизам (Release + ReleaseGroup)
+            SELECT 
+                rel.id::text,
+                rel.mbid,
+                rg.title,
+                a.name AS artist_name,
+                'release' AS type,
+                rel.date AS release_date,
+                AVG(rev.rating) AS avg_rating,
+                COUNT(rev.id) AS review_count,
+                GREATEST(
+                    similarity(rg.title, ?),
+                    similarity(a.name, ?)
+                ) AS relevance
+            FROM releases rel
+            JOIN release_groups rg ON rel.release_group_id = rg.id
+            JOIN artists a ON rg.artist_id = a.id
+            LEFT JOIN reviews rev ON rev.target_id = rel.id AND rev.target_type = 'release'
+            WHERE rg.title ILIKE ? 
+               OR a.name ILIKE ?
+               OR similarity(rg.title, ?) > 0.2
+               OR similarity(a.name, ?) > 0.2
+            GROUP BY rel.id, rel.mbid, rg.title, a.name, rel.date
 
-	db = db.Order("relevance DESC").
-		Order("avg_rating DESC")
+            UNION ALL
 
-	offset := (page_index - 1) * page_size
-
-	db = db.Limit(page_size).Offset(offset)
-
-	var results []entity.AlbumSearchResult
-	if err := db.Scan(&results).Error; err != nil {
-		r.logger.Error("failed scan search result",
-			zap.Error(err))
-
+            -- Поиск по артистам
+            SELECT 
+                a.id::text,
+                a.mbid,
+                a.name AS title,
+                NULL::text AS artist_name,
+                'artist' AS type,
+                NULL::date AS release_date,
+                NULL::float AS avg_rating,
+                NULL::bigint AS review_count,
+                similarity(a.name, ?) AS relevance
+            FROM artists a
+            WHERE a.name ILIKE ?
+               OR similarity(a.name, ?) > 0.3
+        ) combined
+        WHERE relevance > 0.15
+        ORDER BY relevance DESC, avg_rating DESC NULLS LAST
+        LIMIT ? OFFSET ?
+    `,
+		queryParam, queryParam,
+		likeQuery, likeQuery,
+		queryParam, queryParam,
+		queryParam,
+		likeQuery,
+		queryParam,
+		// Финальные LIMIT/OFFSET
+		pageSize, offset,
+	).Scan(&results).Error
+	if err != nil {
+		r.logger.Error("failed to execute unified search", zap.Error(err))
 		return nil, ErrInternal
 	}
 
@@ -170,16 +214,16 @@ func (r *Repository) GetArtistByID(ctx context.Context, id uuid.UUID) (*entity.A
 	return &artist, nil
 }
 
-func (r *Repository) ReadArtists(ctx context.Context, page_size, page_index int) ([]entity.Artist, error) {
+func (r *Repository) ReadArtists(ctx context.Context, pageSize, pageIndex int) ([]entity.Artist, error) {
 	r.logger.Info("fetching artists",
-		zap.Int("page_size", page_size),
-		zap.Int("page_index", page_index))
+		zap.Int("pageSize", pageSize),
+		zap.Int("pageIndex", pageIndex))
 
 	var artists []entity.Artist
 
-	offset := (page_index - 1) * page_size
+	offset := (pageIndex - 1) * pageSize
 
-	res := r.db.Limit(page_size).Offset(offset).Find(&artists)
+	res := r.db.Limit(pageSize).Offset(offset).Find(&artists)
 	if res.RowsAffected == 0 {
 		r.logger.Error("artists not found")
 
@@ -197,16 +241,16 @@ func (r *Repository) ReadArtists(ctx context.Context, page_size, page_index int)
 	return artists, nil
 }
 
-func (r *Repository) ReadReleases(ctx context.Context, page_size, page_index int) ([]entity.Release, error) {
+func (r *Repository) ReadReleases(ctx context.Context, pageSize, pageIndex int) ([]entity.Release, error) {
 	r.logger.Info("fetching releases",
-		zap.Int("page_size", page_size),
-		zap.Int("page_index", page_index))
+		zap.Int("pageSize", pageSize),
+		zap.Int("pageIndex", pageIndex))
 
 	var releases []entity.Release
 
-	offset := (page_index - 1) * page_size
+	offset := (pageIndex - 1) * pageSize
 
-	res := r.db.Limit(page_size).Offset(offset).Find(&releases)
+	res := r.db.Limit(pageSize).Offset(offset).Find(&releases)
 	if res.RowsAffected == 0 {
 		r.logger.Error("releases not found")
 
