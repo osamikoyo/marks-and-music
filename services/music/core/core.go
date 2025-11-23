@@ -23,14 +23,31 @@ type Repository interface {
 	ReadReleases(ctx context.Context, pageSize, pageIndex int) ([]entity.Release, error)
 }
 
+type Cache interface {
+	SetArtist(key string, artist *entity.Artist) error
+	SetRelease(key string, release *entity.Release) error
+	GetArtist(key string) (*entity.Artist, error)
+	GetRelease(key string) (*entity.Release, error)
+}
+
 type Fetcher interface {
 	AsyncFetch(query string)
 }
 
 type MusicCore struct {
+	cache   Cache
 	fetcher Fetcher
 	repo    Repository
 	timeout time.Duration
+}
+
+func NewMusicCore(repo Repository, cache Cache, fetcher Fetcher, timeout time.Duration) *MusicCore {
+	return &MusicCore{
+		repo:    repo,
+		cache:   cache,
+		fetcher: fetcher,
+		timeout: timeout,
+	}
 }
 
 func (mc *MusicCore) context() (context.Context, context.CancelFunc) {
@@ -42,6 +59,11 @@ func (mc *MusicCore) GetArtist(id string) (*entity.Artist, error) {
 		return nil, ErrEmptyField
 	}
 
+	artist, err := mc.cache.GetArtist(id)
+	if err == nil {
+		return artist, nil
+	}
+
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return nil, ErrUIDFailed
@@ -49,7 +71,15 @@ func (mc *MusicCore) GetArtist(id string) (*entity.Artist, error) {
 
 	ctx, cancel := mc.context()
 	defer cancel()
-	return mc.repo.GetArtistByID(ctx, uid)
+
+	artist, err = mc.repo.GetArtistByID(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+
+	mc.cache.SetArtist(id, artist)
+
+	return artist, nil
 }
 
 func (mc *MusicCore) GetRelease(id string) (*entity.Release, error) {
@@ -57,6 +87,11 @@ func (mc *MusicCore) GetRelease(id string) (*entity.Release, error) {
 		return nil, ErrEmptyField
 	}
 
+	release, err := mc.cache.GetRelease(id)
+	if err == nil {
+		return release, nil
+	}
+
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return nil, ErrUIDFailed
@@ -64,7 +99,15 @@ func (mc *MusicCore) GetRelease(id string) (*entity.Release, error) {
 
 	ctx, cancel := mc.context()
 	defer cancel()
-	return mc.repo.GetReleaseByID(ctx, uid)
+
+	release, err = mc.repo.GetReleaseByID(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+
+	mc.cache.SetRelease(id, release)
+
+	return release, nil
 }
 
 func (mc *MusicCore) Search(query string, pageIndex, pageSize int) ([]entity.SearchResult, error) {
