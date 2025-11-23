@@ -3,9 +3,14 @@ package app
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/osamikoyo/music-and-marks/logger"
+	"github.com/osamikoyo/music-and-marks/services/music/cache"
 	"github.com/osamikoyo/music-and-marks/services/music/config"
+	"github.com/osamikoyo/music-and-marks/services/music/core"
+	"github.com/osamikoyo/music-and-marks/services/music/fetcher"
+	"github.com/osamikoyo/music-and-marks/services/music/loader"
 	"github.com/osamikoyo/music-and-marks/services/music/repository"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -66,4 +71,10 @@ func SetupApp() (*App, error) {
 	}
 
 	repo := repository.NewRepository(db, logger)
+	cache := cache.NewCache(cfg, logger)
+
+	loader := loader.NewLoader(logger, cfg.SearchRequestTimeout)
+
+	fetcher, fclient := fetcher.NewFetcher(loader, repo, logger, cfg.SearchRequestTimeout)
+	core := core.NewMusicCore(repo, cache, fetcher, 30*time.Second)
 }
