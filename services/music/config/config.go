@@ -2,6 +2,10 @@ package config
 
 import (
 	"fmt"
+	"net/url"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/osamikoyo/music-and-marks/logger"
 	"github.com/spf13/viper"
@@ -9,16 +13,23 @@ import (
 )
 
 const (
-	DefaultAddr         = "localhost:8082"
-	DefaultMetricsAddr  = "localhost:8080"
-	DefaultDatabasePath = "storage/music.db"
+	DefaultAddr        = "localhost:8082"
+	DefaultMetricsAddr = "localhost:8080"
 )
 
 type Config struct {
 	Addr        string `yaml:"addr" mapstructure:"addr"`
 	MetricsAddr string `yaml:"metrics_addr" mapstructure:"metrics_addr"`
 
+	SearchRequestTimeout time.Duration `yaml:"search_request_timeout"`
+
+	Cache    CacheConfig    `yaml:"cache" mapstructure:"cache"`
 	Postgres PostgresConfig `yaml:"postgres" mapstructure:"postgres"`
+}
+
+type CacheConfig struct {
+	ExpTime                  time.Duration `yaml:"exp_time" mapstructure:"default_exp_time"`
+	ExpiredItemsPurgeTimeout time.Duration `yaml:"exp_items_purge_timeout" mapstructure:"exp_items_purge_timeout"`
 }
 
 type PostgresConfig struct {
@@ -33,7 +44,58 @@ type PostgresConfig struct {
 
 	MaxOpenConns    int `yaml:"max_open_conns" mapstructure:"max_open_conns"`
 	MaxIdleConns    int `yaml:"max_idle_conns" mapstructure:"max_idle_conns"`
-	ConnMaxLifetime int `yaml:"conn_max_lifetime_minutes" mapstructure:"conn_max_lifetime_minutes"` // в минутах
+	ConnMaxLifetime int `yaml:"conn_max_lifetime_minutes" mapstructure:"conn_max_lifetime_minutes"`
+}
+
+func (c *PostgresConfig) GetDSN() (string, error) {
+	if c.DSN != "" {
+		return c.DSN, nil
+	}
+
+	if c.Host == "" {
+		return "", fmt.Errorf("postgres host is required")
+	}
+	if c.User == "" {
+		return "", fmt.Errorf("postgres user is required")
+	}
+	if c.DBName == "" {
+		return "", fmt.Errorf("postgres dbname is required")
+	}
+
+	port := c.Port
+	if port == 0 {
+		port = 5432
+	}
+
+	var authPart string
+	if c.Password != "" {
+		authPart = c.User + ":" + url.QueryEscape(c.Password)
+	} else {
+		authPart = c.User
+	}
+
+	hostPort := c.Host
+	if !strings.Contains(hostPort, ":") && port != 5432 {
+		hostPort = hostPort + ":" + strconv.Itoa(port)
+	} else if port != 5432 {
+		hostPort = c.Host + ":" + strconv.Itoa(port)
+	}
+
+	base := fmt.Sprintf("postgres://%s@%s/%s", authPart, hostPort, c.DBName)
+
+	values := url.Values{}
+
+	if c.SSLMode != "" {
+		values.Add("sslmode", c.SSLMode)
+	} else {
+		values.Add("sslmode", "disable")
+	}
+
+	if len(values) > 0 {
+		base += "?" + values.Encode()
+	}
+
+	return base, nil
 }
 
 func NewConfig(path string, logger *logger.Logger) (*Config, error) {
@@ -44,6 +106,11 @@ func NewConfig(path string, logger *logger.Logger) (*Config, error) {
 
 	v.SetDefault("addr", DefaultAddr)
 	v.SetDefault("metrics_addr", DefaultMetricsAddr)
+
+	v.SetDefault("search_request_timeout", 30*time.Second)
+
+	v.SetDefault("exp_time", 5*time.Minute)
+	v.SetDefault("exp_items_purge_timeout", 10*time.Minute)
 
 	v.SetDefault("postgres.host", "localhost")
 	v.SetDefault("postgres.port", 5432)
@@ -66,6 +133,11 @@ func NewConfig(path string, logger *logger.Logger) (*Config, error) {
 
 	v.BindEnv("addr", "APP_ADDR")
 	v.BindEnv("metrics_addr", "APP_METRICS_ADDR")
+
+	v.BindEnv("search_request_timeout", "APP_SEARCH_REQUEST_TIMEOUT")
+
+	v.BindEnv("cache.exp_time", "APP_EXP_TIME")
+	v.BindEnv("cache.exp_items_purge_timeout", "APP_EXP_ITEMS_PURGE_TIMEOUT")
 
 	v.BindEnv("postgres.dsn", "APP_POSTGRES_DSN")
 	v.BindEnv("postgres.host", "APP_POSTGRES_HOST")
