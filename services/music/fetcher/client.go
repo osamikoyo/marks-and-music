@@ -1,6 +1,6 @@
 package fetcher
 
-type FetcherClient struct{
+type FetcherClient struct {
 	queryChan chan string
 }
 
