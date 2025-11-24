@@ -1,17 +1,19 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/osamikoyo/music-and-marks/logger"
+	"github.com/osamikoyo/music-and-marks/services/music/api/proto/gen/pb"
 	"github.com/osamikoyo/music-and-marks/services/music/cache"
 	"github.com/osamikoyo/music-and-marks/services/music/config"
 	"github.com/osamikoyo/music-and-marks/services/music/core"
 	"github.com/osamikoyo/music-and-marks/services/music/fetcher"
 	"github.com/osamikoyo/music-and-marks/services/music/loader"
 	"github.com/osamikoyo/music-and-marks/services/music/repository"
+	"github.com/osamikoyo/music-and-marks/services/music/server"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
@@ -19,6 +21,7 @@ import (
 )
 
 type App struct {
+	fetcher    *fetcher.Fetcher
 	grpcServer *grpc.Server
 	logger     *logger.Logger
 	cfg        *config.Config
@@ -52,6 +55,9 @@ func SetupApp() (*App, error) {
 		return nil, fmt.Errorf("load config error: %w", err)
 	}
 
+	logger.Info("config loaded successfully",
+		zap.Any("config", cfg))
+
 	dsn, err := cfg.Postgres.GetDSN()
 	if err != nil {
 		logger.Error("failed build dsn",
@@ -60,6 +66,9 @@ func SetupApp() (*App, error) {
 
 		return nil, fmt.Errorf("build dsn error: %w", err)
 	}
+
+	logger.Info("dsn created",
+		zap.String("dsn", dsn))
 
 	db, err := gorm.Open(postgres.Open(dsn))
 	if err != nil {
@@ -70,11 +79,32 @@ func SetupApp() (*App, error) {
 		return nil, fmt.Errorf("failed connect to db: %w", err)
 	}
 
+	logger.Info("connected to database")
+
 	repo := repository.NewRepository(db, logger)
 	cache := cache.NewCache(cfg, logger)
 
 	loader := loader.NewLoader(logger, cfg.SearchRequestTimeout)
 
 	fetcher, fclient := fetcher.NewFetcher(loader, repo, logger, cfg.SearchRequestTimeout)
-	core := core.NewMusicCore(repo, cache, fetcher, 30*time.Second)
+	core := core.NewMusicCore(repo, cache, fclient, cfg.RepositoryTimeout)
+
+	server := server.NewServer(core, logger)
+	grpcsrv := grpc.NewServer()
+	pb.RegisterMusicServiceServer(grpcsrv, server)
+
+	return &App{
+		fetcher:    fetcher,
+		grpcServer: grpcsrv,
+		logger:     logger,
+		cfg:        cfg,
+	}, nil
+}
+
+func (a *App) Run(ctx context.Context) error {
+	a.logger.Info("starting app")
+
+	go func() {
+		a.fetcher.Start(ctx)
+	}()
 }
