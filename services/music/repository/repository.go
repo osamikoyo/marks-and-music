@@ -30,30 +30,6 @@ func NewRepository(db *gorm.DB, logger *logger.Logger) *Repository {
 	}
 }
 
-func (r *Repository) CreateReleaseGroup(ctx context.Context, rg *entity.ReleaseGroup) error {
-	if rg == nil {
-		return ErrNilInput
-	}
-
-	r.logger.Info("creating release group",
-		zap.Any("rg", rg))
-
-	if err := r.db.WithContext(ctx).Create(rg).Error; err != nil {
-		r.logger.Error("failed create release group",
-			zap.Error(err))
-
-		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			return ErrAlreadyExist
-		}
-
-		return ErrInternal
-	}
-
-	r.logger.Info("release group created successfully")
-
-	return nil
-}
-
 func (r *Repository) CreateArtist(ctx context.Context, artist *entity.Artist) error {
 	if artist == nil {
 		return ErrNilInput
@@ -152,7 +128,6 @@ func (r *Repository) Search(ctx context.Context, query string, pageSize, pageInd
 		queryParam,
 		likeQuery,
 		queryParam,
-		// Финальные LIMIT/OFFSET
 		pageSize, offset,
 	).Scan(&results).Error
 	if err != nil {
@@ -212,6 +187,34 @@ func (r *Repository) GetArtistByID(ctx context.Context, id uuid.UUID) (*entity.A
 	r.logger.Info("artist successfully fetched",
 		zap.Any("artist", artist))
 	return &artist, nil
+}
+
+func (r *Repository) GetReleaseByID(ctx context.Context, id uuid.UUID) (*entity.Release, error) {
+	if len(id) == 0 {
+		return nil, ErrNilInput
+	}
+
+	r.logger.Info("fetching release",
+		zap.String("id", id.String()))
+
+	var release entity.Release
+
+	if err := r.db.WithContext(ctx).First(&release, id).Error; err != nil {
+		r.logger.Error("failed fetch release",
+			zap.String("id", id.String()),
+			zap.Error(err))
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrNotFound
+		}
+
+		return nil, ErrInternal
+	}
+
+	r.logger.Info("release successfully fetched",
+		zap.Any("release", release))
+
+	return &release, nil
 }
 
 func (r *Repository) ReadArtists(ctx context.Context, pageSize, pageIndex int) ([]entity.Artist, error) {
