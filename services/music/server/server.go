@@ -3,10 +3,12 @@ package server
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/osamikoyo/music-and-marks/logger"
 	"github.com/osamikoyo/music-and-marks/services/music/api/proto/gen/pb"
 	"github.com/osamikoyo/music-and-marks/services/music/core"
+	"github.com/osamikoyo/music-and-marks/services/music/metrics"
 	"go.uber.org/zap"
 )
 
@@ -30,10 +32,15 @@ func (s *Server) GetArtist(ctx context.Context, req *pb.GetArtistRequest) (*pb.G
 		return nil, ErrEmptyRequest
 	}
 
+	then := time.Now()
+	metrics.RequestTotal.WithLabelValues("GetArtist").Inc()
+
 	artist, err := s.core.GetArtist(req.Id)
 	if err != nil {
 		return nil, err
 	}
+
+	metrics.RequestDuration.WithLabelValues("GetArtist").Observe(time.Since(then).Seconds())
 
 	return &pb.GetArtistResponse{
 		Artist: artist.ToPB(),
@@ -45,10 +52,15 @@ func (s *Server) GetRelease(ctx context.Context, req *pb.GetReleaseRequest) (*pb
 		return nil, ErrEmptyRequest
 	}
 
+	then := time.Now()
+	metrics.RequestTotal.WithLabelValues("GetRelease").Inc()
+
 	release, err := s.core.GetRelease(req.Id)
 	if err != nil {
 		return nil, err
 	}
+
+	metrics.RequestDuration.WithLabelValues("GetRelease").Observe(time.Since(then).Seconds())
 
 	return &pb.GetReleaseResponse{
 		Release: release.ToPB(),
@@ -59,6 +71,9 @@ func (s *Server) Search(ctx context.Context, req *pb.SearchRequest) (*pb.SearchR
 	if req == nil {
 		return nil, ErrEmptyRequest
 	}
+
+	then := time.Now()
+	metrics.RequestTotal.WithLabelValues("Search").Inc()
 
 	results, err := s.core.Search(req.Query, int(req.PageIndex), int(req.PageSize))
 	if err != nil {
@@ -74,6 +89,8 @@ func (s *Server) Search(ctx context.Context, req *pb.SearchRequest) (*pb.SearchR
 		pbresults[i] = result.ToPB()
 	}
 
+	metrics.RequestDuration.WithLabelValues("Search").Observe(time.Since(then).Seconds())
+
 	return &pb.SearchResponse{
 		Results: pbresults,
 	}, nil
@@ -83,6 +100,9 @@ func (s *Server) ReadArtists(ctx context.Context, req *pb.ReadArtistsRequest) (*
 	if req == nil {
 		return nil, ErrEmptyRequest
 	}
+
+	then := time.Now()
+	metrics.RequestTotal.WithLabelValues("ReadArtists").Inc()
 
 	artists, err := s.core.ReadArtists(int(req.PageSize), int(req.PageIndex))
 	if err != nil {
@@ -99,6 +119,8 @@ func (s *Server) ReadArtists(ctx context.Context, req *pb.ReadArtistsRequest) (*
 		pbartists[i] = artist.ToPB()
 	}
 
+	metrics.RequestDuration.WithLabelValues("ReadArtists").Observe(time.Since(then).Seconds())
+
 	return &pb.ReadArtistsResponse{
 		Artists: pbartists,
 	}, nil
@@ -108,6 +130,9 @@ func (s *Server) ReadReleases(ctx context.Context, req *pb.ReadReleasesRequest) 
 	if req == nil {
 		return nil, ErrEmptyRequest
 	}
+
+	then := time.Now()
+	metrics.RequestTotal.WithLabelValues("ReadReleases")
 
 	releases, err := s.core.ReadReleases(int(req.PageSize), int(req.PageIndex))
 	if err != nil {
@@ -123,6 +148,8 @@ func (s *Server) ReadReleases(ctx context.Context, req *pb.ReadReleasesRequest) 
 	for i, release := range releases {
 		pbreleases[i] = release.ToPB()
 	}
+
+	metrics.RequestDuration.WithLabelValues("ReadReleases").Observe(time.Since(then).Seconds())
 
 	return &pb.ReadReleasesResponse{
 		Releases: pbreleases,
