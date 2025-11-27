@@ -3,7 +3,9 @@ package app
 import (
 	"context"
 	"fmt"
+	"net"
 	"os"
+	"sync"
 
 	"github.com/osamikoyo/music-and-marks/logger"
 	"github.com/osamikoyo/music-and-marks/services/music/api/proto/gen/pb"
@@ -93,6 +95,8 @@ func SetupApp() (*App, error) {
 	grpcsrv := grpc.NewServer()
 	pb.RegisterMusicServiceServer(grpcsrv, server)
 
+	logger.Info("app setuped successfully")
+
 	return &App{
 		fetcher:    fetcher,
 		grpcServer: grpcsrv,
@@ -104,7 +108,37 @@ func SetupApp() (*App, error) {
 func (a *App) Run(ctx context.Context) error {
 	a.logger.Info("starting app")
 
-	go func() {
+	var wg sync.WaitGroup
+
+	wg.Go(func() {
 		a.fetcher.Start(ctx)
+
+		a.logger.Info("fetcher started")
+	})
+
+	lis, err := net.Listen("tcp", a.cfg.Addr)
+	if err != nil {
+		a.logger.Error("failed listen",
+			zap.String("addr", a.cfg.Addr),
+			zap.Error(err))
+
+		return fmt.Errorf("failed listen: %w", err)
+	}
+
+	wg.Go(func() {
+		if err := a.grpcServer.Serve(lis); err != nil {
+			a.logger.Error("failed start grpc server",
+				zap.Error(err))
+		}
+	})
+
+	go func() {
+		<-ctx.Done()
+
+		a.grpcServer.GracefulStop()
+
+		a.logger.Info("grpc server successfully stoped")
 	}()
+
+	return nil
 }
