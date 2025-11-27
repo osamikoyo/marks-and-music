@@ -21,7 +21,8 @@ type Config struct {
 	Addr        string `yaml:"addr" mapstructure:"addr"`
 	MetricsAddr string `yaml:"metrics_addr" mapstructure:"metrics_addr"`
 
-	SearchRequestTimeout time.Duration `yaml:"search_request_timeout"`
+	SearchRequestTimeout time.Duration `yaml:"search_request_timeout" mapstructure:"search_request_timeout"`
+	RepositoryTimeout    time.Duration `yaml:"repo_timeout" mapstructure:"repo_timeout"`
 
 	Cache    CacheConfig    `yaml:"cache" mapstructure:"cache"`
 	Postgres PostgresConfig `yaml:"postgres" mapstructure:"postgres"`
@@ -107,9 +108,10 @@ func NewConfig(path string, logger *logger.Logger) (*Config, error) {
 	v.SetDefault("addr", DefaultAddr)
 	v.SetDefault("metrics_addr", DefaultMetricsAddr)
 
+	v.SetDefault("repo_timeout", 30*time.Second)
 	v.SetDefault("search_request_timeout", 30*time.Second)
 
-	v.SetDefault("exp_time", 5*time.Minute)
+	v.SetDefault("default_exp_time", 5*time.Minute)
 	v.SetDefault("exp_items_purge_timeout", 10*time.Minute)
 
 	v.SetDefault("postgres.host", "localhost")
@@ -134,9 +136,10 @@ func NewConfig(path string, logger *logger.Logger) (*Config, error) {
 	v.BindEnv("addr", "APP_ADDR")
 	v.BindEnv("metrics_addr", "APP_METRICS_ADDR")
 
+	v.BindEnv("repo_timeout", "APP_REPO_TIMEOUT")
 	v.BindEnv("search_request_timeout", "APP_SEARCH_REQUEST_TIMEOUT")
 
-	v.BindEnv("cache.exp_time", "APP_EXP_TIME")
+	v.BindEnv("cache.default_exp_time", "APP_EXP_TIME")
 	v.BindEnv("cache.exp_items_purge_timeout", "APP_EXP_ITEMS_PURGE_TIMEOUT")
 
 	v.BindEnv("postgres.dsn", "APP_POSTGRES_DSN")
