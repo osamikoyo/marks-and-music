@@ -140,5 +140,7 @@ func (a *App) Run(ctx context.Context) error {
 		a.logger.Info("grpc server successfully stoped")
 	}()
 
+	wg.Wait()
+
 	return nil
 }
