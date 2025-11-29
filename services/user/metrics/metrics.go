@@ -16,8 +16,8 @@ var RequestTotal = prometheus.NewCounterVec(
 
 var RequestDuration = prometheus.NewHistogramVec(
 	prometheus.HistogramOpts{
-		Name: "request_duration",
-		Help: "Duration to route request",
+		Name:    "request_duration",
+		Help:    "Duration to route request",
 		Buckets: prometheus.DefBuckets,
 	},
 	[]string{"func"},
@@ -28,3 +28,4 @@ func InitMetrics() {
 		prometheus.MustRegister(RequestTotal, RequestDuration)
 	})
 }
+
