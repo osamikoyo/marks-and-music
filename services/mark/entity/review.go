@@ -10,3 +10,13 @@ type Review struct {
 	ReleaseID string    `json:"release_id"`
 	CreatedAt time.Time `json:"-"`
 }
+
+func NewReview(releaeID, text, userID string, count int) *Review {
+	return &Review{
+		Text:      text,
+		ReleaseID: releaeID,
+		UserID:    userID,
+		Count:     count,
+		CreatedAt: time.Now(),
+	}
+}
