@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"sync"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/osamikoyo/music-and-marks/services/music/loader"
 	"github.com/osamikoyo/music-and-marks/services/music/repository"
 	"github.com/osamikoyo/music-and-marks/services/music/server"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
@@ -126,8 +128,18 @@ func (a *App) Run(ctx context.Context) error {
 	}
 
 	wg.Go(func() {
-		if err := a.grpcServer.Serve(lis); err != nil {
+		if err = a.grpcServer.Serve(lis); err != nil {
 			a.logger.Error("failed start grpc server",
+				zap.Error(err))
+		}
+	})
+
+	http.Handle("/metrics", promhttp.Handler())
+
+	wg.Go(func() {
+		if err = http.ListenAndServe(a.cfg.MetricsAddr, nil); err != nil {
+			a.logger.Error("failed start metrics server",
+				zap.String("addr", a.cfg.MetricsAddr),
 				zap.Error(err))
 		}
 	})
