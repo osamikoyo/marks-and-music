@@ -14,6 +14,7 @@ var (
 	ErrEmptyFields  = errors.New("empty fields")
 	ErrInternal     = errors.New("internal error")
 	ErrAlreadyExist = errors.New("already exist")
+	ErrNotFound     = errors.New("not found")
 )
 
 type Repository struct {
@@ -63,4 +64,20 @@ func (r *Repository) DeleteReviewByReleaseID(ctx context.Context, releaseID stri
 		zap.String("release_id", releaseID))
 
 	res := r.db.WithContext(ctx).Where("release_id = ?", releaseID).Delete(&entity.Review{})
+	if err := res.Error; err != nil {
+		r.logger.Error("failed delete review by release_id",
+			zap.String("release_id", releaseID),
+			zap.Error(err))
+
+		if res.RowsAffected == 0 {
+			return ErrNotFound
+		}
+
+		return ErrInternal
+	}
+
+	r.logger.Info("review delete",
+		zap.String("release_id", releaseID))
+
+	return nil
 }
