@@ -111,8 +111,8 @@ func NewConfig(path string, logger *logger.Logger) (*Config, error) {
 	v.SetDefault("repo_timeout", 30*time.Second)
 	v.SetDefault("search_request_timeout", 30*time.Second)
 
-	v.SetDefault("default_exp_time", 5*time.Minute)
-	v.SetDefault("exp_items_purge_timeout", 10*time.Minute)
+	v.SetDefault("cache.default_exp_time", 5*time.Minute)
+	v.SetDefault("cahce.exp_items_purge_timeout", 10*time.Minute)
 
 	v.SetDefault("postgres.host", "localhost")
 	v.SetDefault("postgres.port", 5432)
