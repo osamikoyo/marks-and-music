@@ -2,7 +2,6 @@ package cache
 
 import (
 	"errors"
-
 	"github.com/osamikoyo/music-and-marks/logger"
 	"github.com/osamikoyo/music-and-marks/services/mark/config"
 	"github.com/osamikoyo/music-and-marks/services/mark/entity"
@@ -38,6 +37,7 @@ func (c *Cache) Set(key string, value interface{}) {
 }
 
 func (c *Cache) GetReviews(key string) ([]entity.Review, error) {
+
 	c.logger.Info("fetching reviews from cache",
 		zap.String("key", key))
 
