@@ -81,28 +81,3 @@ func (c *Core) CreateMark(releaseID string, value float32) error {
 	return nil
 }
 
-func (c *Core) RecountMark(releaeID string) error {
-	ctx, cancel := c.context()
-	defer cancel()
-
-	reviews, err := c.repo.GetReviewsByReleaseID(ctx, releaeID)
-	if err != nil {
-		return err
-	}
-
-	sum := 0
-
-	for _, review := range reviews {
-		sum += review.Count
-	}
-
-	count := float32(sum / len(reviews))
-
-	mark := entity.NewMark(releaeID, count)
-
-	if err := c.repo.UpdateMarkByReleaseID(ctx, releaeID, mark); err != nil {
-		return err
-	}
-
-	return nil
-}
