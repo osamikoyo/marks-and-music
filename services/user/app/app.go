@@ -112,7 +112,7 @@ func (a *App) Start(ctx context.Context) error {
 	go func() {
 		<-ctx.Done()
 
-		a.grpc.GracefulStop()	
+		a.grpc.GracefulStop()
 	}()
 
 	var wg sync.WaitGroup
