@@ -24,13 +24,15 @@ type Recounter struct {
 	counts map[string]int
 }
 
-func NewRecounter(cache *cache.Cache, repo core.Repository, logger *logger.Logger) *Recounter {
+func NewRecounter(cache *cache.Cache, repo core.Repository, logger *logger.Logger) (*Recounter, *Client) {
+	releaes := make(chan string, 5)
+
 	return &Recounter{
 		cache:  cache,
 		logger: logger,
 		repo:   repo,
 		counts: make(map[string]int),
-	}
+	}, newClient(releaes)
 }
 
 func (r *Recounter) recountMark(ctx context.Context, releaeID string) error {
