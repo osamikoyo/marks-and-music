@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option go_package = "./services/mark/api/proto/gen";
+
+message Mark{
+    uint64 id = 1;
+    string release_id = 2;
+    float value = 3;
+    int32 reviews = 4;
+}
+
+message Review{
+    uint64 id = 1;
+    string text = 2;
+    int32 count = 3;
+    string user_id = 4;
+    string release_id = 5;
+}
+
+service MarkService{
+    rpc GetReviews(GetReviewsRequest) returns (GetReviewsResponse);
+    rpc DeleteReview(DeleteReviewRequest) returns (google.protobuf.Empty);
+    rpc GetMark(GetMarkRequest) returns (Mark);
+    rpc CreateReview(Review) returns (google.protobuf.Empty);
+}
+
+message GetMarkRequest {
+    string release_id = 1;
+}
+
+message GetReviewsResponse {
+    repeated Review reviews = 1;
+}
+
+message GetReviewsRequest {
+    string release_id = 1;
+}
+
+message DeleteReviewRequest {
+    uint64 id = 1;
+}
