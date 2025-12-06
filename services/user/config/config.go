@@ -11,7 +11,7 @@ import (
 
 const (
 	DefaultAddr         = "localhost:8081"
-	DefaultMetricsAddr = "localhost:8080"
+	DefaultMetricsAddr  = "localhost:8080"
 	DefaultJwtKey       = "super-secret-jwt-key-change-in-production"
 	DefaultRTokenTTL    = 72 * time.Hour
 	DefaultATokenTTL    = 15 * time.Minute
@@ -103,7 +103,7 @@ func (c *Config) Validate() error {
 	if c.DatabasePath == "" {
 		return fmt.Errorf("database_path should not be empty")
 	}
- 
+
 	if c.Addr == c.MetricsAddr {
 		return fmt.Errorf("metrics addr and grpc addr should be different")
 	}
