@@ -80,4 +80,3 @@ func (c *Core) CreateMark(releaseID string, value float32) error {
 
 	return nil
 }
-
