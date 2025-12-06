@@ -15,9 +15,9 @@ type Config struct {
 
 	RepoTimeout time.Duration `yaml:"repo_timeout" mapstructure:"repo_timeout"`
 
-	DBAddr string      `yaml:"db_addr" mapstructure:"db_addr"`
+	DBAddr string `yaml:"db_addr" mapstructure:"db_addr"`
 
-	Cache  CacheConfig `yaml:"cache" mapstrucure:"cache"`
+	Cache CacheConfig `yaml:"cache" mapstrucure:"cache"`
 }
 
 type CacheConfig struct {
@@ -66,7 +66,7 @@ func NewConfig(path string, logger *logger.Logger) (*Config, error) {
 	v.BindEnv("cache.exp_times_purge_timeout", "APP_CACHE_EXP_ITEMS_PURGE_TIMEOUT")
 
 	var cfg Config
-	if err := v.Unmarshal(&cfg);err != nil{
+	if err := v.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("failed unmarshal config: %w", err)
 	}
 
