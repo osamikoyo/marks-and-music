@@ -16,6 +16,11 @@ type Repository interface {
 	UpdateMarkByReleaseID(ctx context.Context, releaseID string, update *entity.Mark) error
 }
 
+type Cache interface{
+	Set(key string, value interface{})
+	GetReviews(key string) ([]entity.Review, error)
+}
+
 type Core struct {
 	repo    Repository
 	timeout time.Duration
