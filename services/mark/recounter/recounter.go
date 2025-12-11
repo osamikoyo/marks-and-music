@@ -68,6 +68,8 @@ func (r *Recounter) Start(appctx context.Context) {
 		case <-appctx.Done():
 			r.logger.Info("stopping recounter...")
 
+			close(r.releases)
+
 			return
 		case releaseID := <-r.releases:
 			r.mu.Lock()
