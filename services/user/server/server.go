@@ -60,7 +60,7 @@ func (uss *UserServiceServer) ChangePassword(ctx context.Context, req *pb.Change
 	}
 
 	metrics.RequestDuration.WithLabelValues("ChangePassword").Observe(time.Since(then()).Seconds())
-	
+
 	return &emptypb.Empty{}, nil
 }
 
