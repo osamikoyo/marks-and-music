@@ -1,6 +1,6 @@
 package recounter
 
-type Client struct{
+type Client struct {
 	output chan string
 }
 
