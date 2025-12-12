@@ -10,6 +10,6 @@ func newClient(output chan string) *Client {
 	}
 }
 
-func (c *Client) TryRecount(releaeID string) {
-	c.output <- releaeID
+func (c *Client) TryRecount(releaseID string) {
+	c.output <- releaseID
 }
