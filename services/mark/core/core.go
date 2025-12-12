@@ -13,7 +13,6 @@ type Repository interface {
 	GetReviewsByReleaseID(ctx context.Context, releaseID string) ([]entity.Review, error)
 	GetReviewByID(ctx context.Context, id uint) (*entity.Review, error)
 	GetMarkByReleaseID(ctx context.Context, releaseID string) (*entity.Mark, error)
-	CreateMark(ctx context.Context, mark *entity.Mark) error
 	UpdateMarkByReleaseID(ctx context.Context, releaseID string, update *entity.Mark) error
 }
 
@@ -33,10 +32,12 @@ type Core struct {
 	timeout   time.Duration
 }
 
-func NewCore(repo Repository, timeout time.Duration) *Core {
+func NewCore(repo Repository, cache Cache, recounter Recounter, timeout time.Duration) *Core {
 	return &Core{
-		repo:    repo,
-		timeout: timeout,
+		repo:      repo,
+		cache:     cache,
+		recounter: recounter,
+		timeout:   timeout,
 	}
 }
 
@@ -116,16 +117,4 @@ func (c *Core) GetMarkByReleaeID(releaseID string) (*entity.Mark, error) {
 	}
 
 	return mark, nil
-}
-
-func (c *Core) CreateMark(releaseID string, value float32) error {
-	ctx, cancel := c.context()
-	defer cancel()
-
-	mark := entity.NewMark(releaseID, value)
-	if err := c.repo.CreateMark(ctx, mark); err != nil {
-		return err
-	}
-
-	return nil
 }
