@@ -18,6 +18,13 @@ type Server struct {
 	core   *core.Core
 }
 
+func NewServer(core *core.Core, logger *logger.Logger) *Server {
+	return &Server{
+		core:   core,
+		logger: logger,
+	}
+}
+
 func (s *Server) CreateReview(ctx context.Context, req *pb.Review) (*emptypb.Empty, error) {
 	metrics.RequestTotal.WithLabelValues("CreateReview").Inc()
 	then := time.Now()
@@ -75,12 +82,12 @@ func (s *Server) GetReviews(ctx context.Context, req *pb.GetReviewsRequest) (*pb
 		zap.Any("req", req))
 
 	reviews, err := s.core.GetReviewsByReleaseID(req.ReleaseId)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
 	pbreviews := make([]*pb.Review, len(reviews))
-	for i, review := range reviews{
+	for i, review := range reviews {
 		pbreviews[i] = review.ToPB()
 	}
 
