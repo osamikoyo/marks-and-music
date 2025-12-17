@@ -12,8 +12,8 @@ func (h *Handler) GetMark(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	mark, err := h.cc.GetMark(ctx, releaseId)
-	if err != nil{
-		return c.String(http.StatusInternalServerError, "failed get mark: " + err.Error())
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "failed get mark: "+err.Error())
 	}
 
 	return c.JSON(http.StatusOK, mark)
