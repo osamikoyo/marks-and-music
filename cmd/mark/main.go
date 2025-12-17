@@ -12,14 +12,14 @@ import (
 func main() {
 	configpath := ""
 
-	for i, arg := range os.Args{
+	for i, arg := range os.Args {
 		if arg == "--config" {
 			configpath = os.Args[i+1]
 		}
 	}
 
 	app, err := app.SetupApp(configpath)
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 
 		return
@@ -28,7 +28,7 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	if err := app.Run(ctx);err != nil{
+	if err := app.Run(ctx); err != nil {
 		log.Fatal(err)
 
 		return
