@@ -4,7 +4,7 @@ import (
 	"github.com/osamikoyo/music-and-marks/services/api/pkg/mark/client"
 )
 
-type Handler struct{
+type Handler struct {
 	cc *client.MarkClient
 }
 
