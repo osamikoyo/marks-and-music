@@ -12,8 +12,8 @@ func (h *Handler) GetReviews(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	reviews, err := h.cc.GetReviews(ctx, releaseid)
-	if err != nil{
-		return c.String(http.StatusInternalServerError, "failed get reviews " + err.Error())
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "failed get reviews "+err.Error())
 	}
 
 	return c.JSON(http.StatusOK, reviews)
