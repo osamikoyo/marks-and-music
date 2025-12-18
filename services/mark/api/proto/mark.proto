@@ -16,6 +16,7 @@ message Review{
     string text = 2;
     int32 count = 3;
     string user_id = 4;
+    int64 likes = 6;
     string release_id = 5;
 }
 
@@ -24,6 +25,16 @@ service MarkService{
     rpc DeleteReview(DeleteReviewRequest) returns (google.protobuf.Empty);
     rpc GetMark(GetMarkRequest) returns (Mark);
     rpc CreateReview(Review) returns (google.protobuf.Empty);
+    rpc IncLike(IncLikeRequest) returns(google.protobuf.Empty);
+    rpc DecLike(DecLikeRequest) returns (google.protobuf.Empty);
+}
+
+message IncLikeRequest {
+    uint32 review_id = 1;
+}
+
+message DecLikeRequest {
+    uint32 review_id = 1;
 }
 
 message GetMarkRequest {
