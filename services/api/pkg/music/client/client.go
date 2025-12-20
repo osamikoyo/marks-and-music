@@ -63,15 +63,15 @@ func (c *MusicClient) GetRelease(ctx context.Context, id string) (*entity.Releas
 	}
 
 	release := &entity.Release{
-		ID:              resp.Release.Id,
-		MBID:            resp.Release.Mbid,
-		Title:           resp.Release.Title,
-		ReleaseGroupID:  resp.Release.ReleaseGroupId,
-		Status:          *resp.Release.Status,
-		Country:         *resp.Release.Country,
-		Date:            resp.Release.Date,
-		Format:          *resp.Release.Format,
-		TrackCount:      int(resp.Release.TrackCount),
+		ID:             resp.Release.Id,
+		MBID:           resp.Release.Mbid,
+		Title:          resp.Release.Title,
+		ReleaseGroupID: resp.Release.ReleaseGroupId,
+		Status:         *resp.Release.Status,
+		Country:        *resp.Release.Country,
+		Date:           resp.Release.Date,
+		Format:         *resp.Release.Format,
+		TrackCount:     int(resp.Release.TrackCount),
 	}
 
 	return release, nil
@@ -105,13 +105,13 @@ func (c *MusicClient) Search(ctx context.Context, query string, pageIndex, pageS
 	results := make([]entity.SearchResult, len(resp.Results))
 	for i, r := range resp.Results {
 		results[i] = entity.SearchResult{
-			ID:           r.Id,
-			MBID:         r.Mbid,
-			Title:        r.Title,
-			ArtistName:   r.ArtistName,
-			Type:         r.Type,
-			ReleaseDate:  r.ReleaseDate,
-			Relevance:    r.Relevance,
+			ID:          r.Id,
+			MBID:        r.Mbid,
+			Title:       r.Title,
+			ArtistName:  r.ArtistName,
+			Type:        r.Type,
+			ReleaseDate: r.ReleaseDate,
+			Relevance:   r.Relevance,
 		}
 	}
 
@@ -175,15 +175,15 @@ func (c *MusicClient) ReadReleases(ctx context.Context, pageIndex, pageSize int3
 	releases := make([]entity.Release, len(resp.Releases))
 	for i, r := range resp.Releases {
 		releases[i] = entity.Release{
-			ID:              r.Id,
-			MBID:            r.Mbid,
-			Title:           r.Title,
-			ReleaseGroupID:  r.ReleaseGroupId,
-			Status:          *r.Status,
-			Country:         *r.Country,
-			Date:            r.Date,
-			Format:          *r.Format,
-			TrackCount:      int(r.TrackCount),
+			ID:             r.Id,
+			MBID:           r.Mbid,
+			Title:          r.Title,
+			ReleaseGroupID: r.ReleaseGroupId,
+			Status:         *r.Status,
+			Country:        *r.Country,
+			Date:           r.Date,
+			Format:         *r.Format,
+			TrackCount:     int(r.TrackCount),
 		}
 	}
 
