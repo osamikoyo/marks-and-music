@@ -18,6 +18,13 @@ type MarkClient struct {
 	logger *logger.Logger
 }
 
+func NewMarkClient(cc pb.MarkServiceClient, logger *logger.Logger) *MarkClient {
+	return &MarkClient{
+		cc:     cc,
+		logger: logger,
+	}
+}
+
 func (u *MarkClient) GetReviews(ctx context.Context, releaseID string) ([]entity.Review, error) {
 	if releaseID == "" {
 		return nil, ErrNilInput
