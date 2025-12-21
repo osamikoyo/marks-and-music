@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	DefaultAddr        = "localhost:8082"
+	DefaultAddr        = "localhost:50052"
 	DefaultMetricsAddr = "localhost:8080"
 )
 
