@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	DefaultAddr         = "localhost:8081"
-	DefaultMetricsAddr  = "localhost:8080"
+	DefaultAddr         = "localhost:50051"
+	DefaultMetricsAddr  = "localhost:7979"
 	DefaultJwtKey       = "super-secret-jwt-key-change-in-production"
 	DefaultRTokenTTL    = 72 * time.Hour
 	DefaultATokenTTL    = 15 * time.Minute
