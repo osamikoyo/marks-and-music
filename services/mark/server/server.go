@@ -97,3 +97,35 @@ func (s *Server) GetReviews(ctx context.Context, req *pb.GetReviewsRequest) (*pb
 		Reviews: pbreviews,
 	}, nil
 }
+
+func (s *Server) IncLike(ctx context.Context, req *pb.IncLikeRequest) (*emptypb.Empty, error) {
+	metrics.RequestTotal.WithLabelValues("IncLike").Inc()
+	then := time.Now()
+
+	s.logger.Info("new inc like request",
+		zap.Any("req", req))
+
+	if err := s.core.IncLike(uint(req.ReviewId)); err != nil {
+		return &emptypb.Empty{}, err
+	}
+
+	metrics.RequestDuration.WithLabelValues("IncLike").Observe(time.Since(then).Seconds())
+
+	return &emptypb.Empty{}, nil
+}
+
+func (s *Server) DecLike(ctx context.Context, req *pb.DecLikeRequest) (*emptypb.Empty, error) {
+	metrics.RequestTotal.WithLabelValues("DecLike").Inc()
+	then := time.Now()
+
+	s.logger.Info("new dec like request",
+		zap.Any("req", req))
+
+	if err := s.core.DecLike(uint(req.ReviewId)); err != nil {
+		return &emptypb.Empty{}, err
+	}
+
+	metrics.RequestDuration.WithLabelValues("DecLike").Observe(time.Since(then).Seconds())
+
+	return &emptypb.Empty{}, nil
+}
