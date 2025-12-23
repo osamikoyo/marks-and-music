@@ -5,7 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/osamikoyo/music-and-marks/logger"
-	"github.com/osamikoyo/music-and-marks/services/api/internal/config"
+	"github.com/osamikoyo/music-and-marks/services/api/config"
 	"github.com/osamikoyo/music-and-marks/services/api/pkg/mark/client"
 	"github.com/osamikoyo/music-and-marks/services/api/pkg/mark/handler"
 	"github.com/osamikoyo/music-and-marks/services/mark/api/proto/gen/pb"
