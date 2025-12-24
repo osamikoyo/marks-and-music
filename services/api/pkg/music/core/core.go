@@ -5,7 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/osamikoyo/music-and-marks/logger"
-	"github.com/osamikoyo/music-and-marks/services/api/internal/config"
+	"github.com/osamikoyo/music-and-marks/services/api/config"
 	"github.com/osamikoyo/music-and-marks/services/api/pkg/music/client"
 	"github.com/osamikoyo/music-and-marks/services/api/pkg/music/handler"
 	"github.com/osamikoyo/music-and-marks/services/music/api/proto/gen/pb"
@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-type MusicCore struct{
+type MusicCore struct {
 	handler *handler.Handler
 }
 
@@ -44,3 +44,4 @@ func (m *MusicCore) RegisterHandler(e *echo.Echo) {
 	e.GET("/releases", m.handler.ReadReleases)
 	e.GET("/artists", m.handler.ReadArtists)
 }
+
