@@ -12,8 +12,8 @@ func (h *Handler) GetRelease(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	release, err := h.cc.GetRelease(ctx, id)
-	if err != nil{
-		return c.String(http.StatusInternalServerError, "faield get release " + err.Error())
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "faield get release "+err.Error())
 	}
 
 	return c.JSON(http.StatusOK, release)
