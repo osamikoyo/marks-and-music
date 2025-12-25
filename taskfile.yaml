@@ -8,3 +8,10 @@ tasks:
     cmds:
       - task build-user
       - ./bin/user
+  build-music:
+    cmds:
+      - go build -o ./bin/music cmd/music/main.go
+  run-user:
+    cmds:
+      - task build-music
+      - ./bin/music
