@@ -19,6 +19,13 @@ type UserClient struct {
 	logger *logger.Logger
 }
 
+func NewUserClient(cc pb.UserServiceClient, logger *logger.Logger) *UserClient {
+	return &UserClient{
+		cc:     cc,
+		logger: logger,
+	}
+}
+
 func (u *UserClient) Register(ctx context.Context, user *entity.User) (*entity.TokenPair, error) {
 	if user == nil {
 		return nil, ErrNilInput
@@ -29,7 +36,6 @@ func (u *UserClient) Register(ctx context.Context, user *entity.User) (*entity.T
 		Password: user.Password,
 		Email:    user.Email,
 	})
-
 	if err != nil {
 		u.logger.Error("failed register",
 			zap.Any("user", user),
@@ -137,9 +143,9 @@ func (u *UserClient) DeleteUser(ctx context.Context, id string) error {
 	return nil
 }
 
-func (u *UserClient) RefreshToken(ctx context.Context, refreshToken string) (string, int64, error) {
+func (u *UserClient) RefreshToken(ctx context.Context, refreshToken string) (string, error) {
 	if refreshToken == "" {
-		return "", 0, ErrNilInput
+		return "", ErrNilInput
 	}
 
 	resp, err := u.cc.RefreshToken(ctx, &pb.RefreshTokenRequest{RefreshToken: refreshToken})
@@ -147,10 +153,10 @@ func (u *UserClient) RefreshToken(ctx context.Context, refreshToken string) (str
 		u.logger.Error("failed refresh token",
 			zap.Error(err))
 
-		return "", 0, fmt.Errorf("failed refresh token: %w", err)
+		return "", fmt.Errorf("failed refresh token: %w", err)
 	}
 
-	return resp.AccessToken, resp.ExpiresIn, nil
+	return resp.AccessToken, nil
 }
 
 func (u *UserClient) IncLike(ctx context.Context, userID string) error {
