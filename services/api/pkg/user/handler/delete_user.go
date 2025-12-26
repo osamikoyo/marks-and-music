@@ -11,8 +11,8 @@ func (h *Handler) DeleteUser(c echo.Context) error {
 
 	ctx := c.Request().Context()
 
-	if err := h.cc.DeleteUser(ctx, id);err != nil{
-		return c.String(http.StatusInternalServerError, "failed delete user " + err.Error())
+	if err := h.cc.DeleteUser(ctx, id); err != nil {
+		return c.String(http.StatusInternalServerError, "failed delete user "+err.Error())
 	}
 
 	return c.String(http.StatusOK, "deleted successfully")
