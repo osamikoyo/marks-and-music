@@ -9,6 +9,7 @@ import (
 
 type Repository interface {
 	CreateReview(ctx context.Context, review *entity.Review) error
+	UpdateReview(ctx context.Context, id uint, update *entity.Review) error
 	DeleteReview(ctx context.Context, id uint) error
 	GetReviewsByReleaseID(ctx context.Context, releaseID string) ([]entity.Review, error)
 	GetReviewByID(ctx context.Context, id uint) (*entity.Review, error)
@@ -117,4 +118,32 @@ func (c *Core) GetMarkByReleaeID(releaseID string) (*entity.Mark, error) {
 	}
 
 	return mark, nil
+}
+
+func (c *Core) IncLike(reviewID uint) error {
+	ctx, cancel := c.context()
+	defer cancel()
+
+	review, err := c.repo.GetReviewByID(ctx, reviewID)
+	if err != nil {
+		return err
+	}
+
+	review.Likes++
+
+	return c.repo.UpdateReview(ctx, review.ID, review)
+}
+
+func (c *Core) DecLike(reviewID uint) error {
+	ctx, cancel := c.context()
+	defer cancel()
+
+	review, err := c.repo.GetReviewByID(ctx, reviewID)
+	if err != nil {
+		return err
+	}
+
+	review.Likes--
+
+	return c.repo.UpdateReview(ctx, review.ID, review)
 }
