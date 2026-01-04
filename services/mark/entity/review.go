@@ -11,6 +11,7 @@ type Review struct {
 	Text      string    `json:"text"`
 	Count     int       `json:"count"`
 	UserID    string    `json:"user_id"`
+	Likes     int64     `json:"likes"`
 	ReleaseID string    `json:"release_id"`
 	CreatedAt time.Time `json:"-"`
 }
