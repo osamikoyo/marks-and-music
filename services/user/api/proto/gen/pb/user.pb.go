@@ -595,7 +595,6 @@ func (x *RefreshTokenRequest) GetRefreshToken() string {
 type RefreshTokenResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
-	ExpiresIn     int64                  `protobuf:"varint,2,opt,name=expires_in,json=expiresIn,proto3" json:"expires_in,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -635,13 +634,6 @@ func (x *RefreshTokenResponse) GetAccessToken() string {
 		return x.AccessToken
 	}
 	return ""
-}
-
-func (x *RefreshTokenResponse) GetExpiresIn() int64 {
-	if x != nil {
-		return x.ExpiresIn
-	}
-	return 0
 }
 
 type DecLikeRequest struct {
@@ -865,11 +857,9 @@ const file_user_proto_rawDesc = "" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\":\n" +
 	"\x13RefreshTokenRequest\x12#\n" +
-	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"X\n" +
+	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"9\n" +
 	"\x14RefreshTokenResponse\x12!\n" +
-	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12\x1d\n" +
-	"\n" +
-	"expires_in\x18\x02 \x01(\x03R\texpiresIn\")\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\")\n" +
 	"\x0eDecLikeRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\")\n" +
 	"\x0eIncLikeRequest\x12\x17\n" +
