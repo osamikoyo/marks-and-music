@@ -96,6 +96,7 @@ type Review struct {
 	Text          string                 `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
 	Count         int32                  `protobuf:"varint,3,opt,name=count,proto3" json:"count,omitempty"`
 	UserId        string                 `protobuf:"bytes,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Likes         int64                  `protobuf:"varint,6,opt,name=likes,proto3" json:"likes,omitempty"`
 	ReleaseId     string                 `protobuf:"bytes,5,opt,name=release_id,json=releaseId,proto3" json:"release_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -159,11 +160,106 @@ func (x *Review) GetUserId() string {
 	return ""
 }
 
+func (x *Review) GetLikes() int64 {
+	if x != nil {
+		return x.Likes
+	}
+	return 0
+}
+
 func (x *Review) GetReleaseId() string {
 	if x != nil {
 		return x.ReleaseId
 	}
 	return ""
+}
+
+type IncLikeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ReviewId      uint32                 `protobuf:"varint,1,opt,name=review_id,json=reviewId,proto3" json:"review_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IncLikeRequest) Reset() {
+	*x = IncLikeRequest{}
+	mi := &file_services_mark_api_proto_mark_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IncLikeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IncLikeRequest) ProtoMessage() {}
+
+func (x *IncLikeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_mark_api_proto_mark_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IncLikeRequest.ProtoReflect.Descriptor instead.
+func (*IncLikeRequest) Descriptor() ([]byte, []int) {
+	return file_services_mark_api_proto_mark_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *IncLikeRequest) GetReviewId() uint32 {
+	if x != nil {
+		return x.ReviewId
+	}
+	return 0
+}
+
+type DecLikeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ReviewId      uint32                 `protobuf:"varint,1,opt,name=review_id,json=reviewId,proto3" json:"review_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DecLikeRequest) Reset() {
+	*x = DecLikeRequest{}
+	mi := &file_services_mark_api_proto_mark_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecLikeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecLikeRequest) ProtoMessage() {}
+
+func (x *DecLikeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_services_mark_api_proto_mark_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecLikeRequest.ProtoReflect.Descriptor instead.
+func (*DecLikeRequest) Descriptor() ([]byte, []int) {
+	return file_services_mark_api_proto_mark_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DecLikeRequest) GetReviewId() uint32 {
+	if x != nil {
+		return x.ReviewId
+	}
+	return 0
 }
 
 type GetMarkRequest struct {
@@ -175,7 +271,7 @@ type GetMarkRequest struct {
 
 func (x *GetMarkRequest) Reset() {
 	*x = GetMarkRequest{}
-	mi := &file_services_mark_api_proto_mark_proto_msgTypes[2]
+	mi := &file_services_mark_api_proto_mark_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -187,7 +283,7 @@ func (x *GetMarkRequest) String() string {
 func (*GetMarkRequest) ProtoMessage() {}
 
 func (x *GetMarkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_mark_api_proto_mark_proto_msgTypes[2]
+	mi := &file_services_mark_api_proto_mark_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -200,7 +296,7 @@ func (x *GetMarkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMarkRequest.ProtoReflect.Descriptor instead.
 func (*GetMarkRequest) Descriptor() ([]byte, []int) {
-	return file_services_mark_api_proto_mark_proto_rawDescGZIP(), []int{2}
+	return file_services_mark_api_proto_mark_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetMarkRequest) GetReleaseId() string {
@@ -219,7 +315,7 @@ type GetReviewsResponse struct {
 
 func (x *GetReviewsResponse) Reset() {
 	*x = GetReviewsResponse{}
-	mi := &file_services_mark_api_proto_mark_proto_msgTypes[3]
+	mi := &file_services_mark_api_proto_mark_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -231,7 +327,7 @@ func (x *GetReviewsResponse) String() string {
 func (*GetReviewsResponse) ProtoMessage() {}
 
 func (x *GetReviewsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_services_mark_api_proto_mark_proto_msgTypes[3]
+	mi := &file_services_mark_api_proto_mark_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -244,7 +340,7 @@ func (x *GetReviewsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReviewsResponse.ProtoReflect.Descriptor instead.
 func (*GetReviewsResponse) Descriptor() ([]byte, []int) {
-	return file_services_mark_api_proto_mark_proto_rawDescGZIP(), []int{3}
+	return file_services_mark_api_proto_mark_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetReviewsResponse) GetReviews() []*Review {
@@ -263,7 +359,7 @@ type GetReviewsRequest struct {
 
 func (x *GetReviewsRequest) Reset() {
 	*x = GetReviewsRequest{}
-	mi := &file_services_mark_api_proto_mark_proto_msgTypes[4]
+	mi := &file_services_mark_api_proto_mark_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -275,7 +371,7 @@ func (x *GetReviewsRequest) String() string {
 func (*GetReviewsRequest) ProtoMessage() {}
 
 func (x *GetReviewsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_mark_api_proto_mark_proto_msgTypes[4]
+	mi := &file_services_mark_api_proto_mark_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -288,7 +384,7 @@ func (x *GetReviewsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReviewsRequest.ProtoReflect.Descriptor instead.
 func (*GetReviewsRequest) Descriptor() ([]byte, []int) {
-	return file_services_mark_api_proto_mark_proto_rawDescGZIP(), []int{4}
+	return file_services_mark_api_proto_mark_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetReviewsRequest) GetReleaseId() string {
@@ -307,7 +403,7 @@ type DeleteReviewRequest struct {
 
 func (x *DeleteReviewRequest) Reset() {
 	*x = DeleteReviewRequest{}
-	mi := &file_services_mark_api_proto_mark_proto_msgTypes[5]
+	mi := &file_services_mark_api_proto_mark_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -319,7 +415,7 @@ func (x *DeleteReviewRequest) String() string {
 func (*DeleteReviewRequest) ProtoMessage() {}
 
 func (x *DeleteReviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_services_mark_api_proto_mark_proto_msgTypes[5]
+	mi := &file_services_mark_api_proto_mark_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -332,7 +428,7 @@ func (x *DeleteReviewRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteReviewRequest.ProtoReflect.Descriptor instead.
 func (*DeleteReviewRequest) Descriptor() ([]byte, []int) {
-	return file_services_mark_api_proto_mark_proto_rawDescGZIP(), []int{5}
+	return file_services_mark_api_proto_mark_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *DeleteReviewRequest) GetId() uint64 {
@@ -352,14 +448,19 @@ const file_services_mark_api_proto_mark_proto_rawDesc = "" +
 	"\n" +
 	"release_id\x18\x02 \x01(\tR\treleaseId\x12\x14\n" +
 	"\x05value\x18\x03 \x01(\x02R\x05value\x12\x18\n" +
-	"\areviews\x18\x04 \x01(\x05R\areviews\"z\n" +
+	"\areviews\x18\x04 \x01(\x05R\areviews\"\x90\x01\n" +
 	"\x06Review\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
 	"\x04text\x18\x02 \x01(\tR\x04text\x12\x14\n" +
 	"\x05count\x18\x03 \x01(\x05R\x05count\x12\x17\n" +
-	"\auser_id\x18\x04 \x01(\tR\x06userId\x12\x1d\n" +
+	"\auser_id\x18\x04 \x01(\tR\x06userId\x12\x14\n" +
+	"\x05likes\x18\x06 \x01(\x03R\x05likes\x12\x1d\n" +
 	"\n" +
-	"release_id\x18\x05 \x01(\tR\treleaseId\"/\n" +
+	"release_id\x18\x05 \x01(\tR\treleaseId\"-\n" +
+	"\x0eIncLikeRequest\x12\x1b\n" +
+	"\treview_id\x18\x01 \x01(\rR\breviewId\"-\n" +
+	"\x0eDecLikeRequest\x12\x1b\n" +
+	"\treview_id\x18\x01 \x01(\rR\breviewId\"/\n" +
 	"\x0eGetMarkRequest\x12\x1d\n" +
 	"\n" +
 	"release_id\x18\x01 \x01(\tR\treleaseId\"7\n" +
@@ -369,13 +470,15 @@ const file_services_mark_api_proto_mark_proto_rawDesc = "" +
 	"\n" +
 	"release_id\x18\x01 \x01(\tR\treleaseId\"%\n" +
 	"\x13DeleteReviewRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id2\xd6\x01\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id2\xbe\x02\n" +
 	"\vMarkService\x125\n" +
 	"\n" +
 	"GetReviews\x12\x12.GetReviewsRequest\x1a\x13.GetReviewsResponse\x12<\n" +
 	"\fDeleteReview\x12\x14.DeleteReviewRequest\x1a\x16.google.protobuf.Empty\x12!\n" +
 	"\aGetMark\x12\x0f.GetMarkRequest\x1a\x05.Mark\x12/\n" +
-	"\fCreateReview\x12\a.Review\x1a\x16.google.protobuf.EmptyB\"Z ./services/mark/api/proto/gen/pbb\x06proto3"
+	"\fCreateReview\x12\a.Review\x1a\x16.google.protobuf.Empty\x122\n" +
+	"\aIncLike\x12\x0f.IncLikeRequest\x1a\x16.google.protobuf.Empty\x122\n" +
+	"\aDecLike\x12\x0f.DecLikeRequest\x1a\x16.google.protobuf.EmptyB\"Z ./services/mark/api/proto/gen/pbb\x06proto3"
 
 var (
 	file_services_mark_api_proto_mark_proto_rawDescOnce sync.Once
@@ -389,28 +492,34 @@ func file_services_mark_api_proto_mark_proto_rawDescGZIP() []byte {
 	return file_services_mark_api_proto_mark_proto_rawDescData
 }
 
-var file_services_mark_api_proto_mark_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_services_mark_api_proto_mark_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_services_mark_api_proto_mark_proto_goTypes = []any{
 	(*Mark)(nil),                // 0: Mark
 	(*Review)(nil),              // 1: Review
-	(*GetMarkRequest)(nil),      // 2: GetMarkRequest
-	(*GetReviewsResponse)(nil),  // 3: GetReviewsResponse
-	(*GetReviewsRequest)(nil),   // 4: GetReviewsRequest
-	(*DeleteReviewRequest)(nil), // 5: DeleteReviewRequest
-	(*emptypb.Empty)(nil),       // 6: google.protobuf.Empty
+	(*IncLikeRequest)(nil),      // 2: IncLikeRequest
+	(*DecLikeRequest)(nil),      // 3: DecLikeRequest
+	(*GetMarkRequest)(nil),      // 4: GetMarkRequest
+	(*GetReviewsResponse)(nil),  // 5: GetReviewsResponse
+	(*GetReviewsRequest)(nil),   // 6: GetReviewsRequest
+	(*DeleteReviewRequest)(nil), // 7: DeleteReviewRequest
+	(*emptypb.Empty)(nil),       // 8: google.protobuf.Empty
 }
 var file_services_mark_api_proto_mark_proto_depIdxs = []int32{
 	1, // 0: GetReviewsResponse.reviews:type_name -> Review
-	4, // 1: MarkService.GetReviews:input_type -> GetReviewsRequest
-	5, // 2: MarkService.DeleteReview:input_type -> DeleteReviewRequest
-	2, // 3: MarkService.GetMark:input_type -> GetMarkRequest
+	6, // 1: MarkService.GetReviews:input_type -> GetReviewsRequest
+	7, // 2: MarkService.DeleteReview:input_type -> DeleteReviewRequest
+	4, // 3: MarkService.GetMark:input_type -> GetMarkRequest
 	1, // 4: MarkService.CreateReview:input_type -> Review
-	3, // 5: MarkService.GetReviews:output_type -> GetReviewsResponse
-	6, // 6: MarkService.DeleteReview:output_type -> google.protobuf.Empty
-	0, // 7: MarkService.GetMark:output_type -> Mark
-	6, // 8: MarkService.CreateReview:output_type -> google.protobuf.Empty
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
+	2, // 5: MarkService.IncLike:input_type -> IncLikeRequest
+	3, // 6: MarkService.DecLike:input_type -> DecLikeRequest
+	5, // 7: MarkService.GetReviews:output_type -> GetReviewsResponse
+	8, // 8: MarkService.DeleteReview:output_type -> google.protobuf.Empty
+	0, // 9: MarkService.GetMark:output_type -> Mark
+	8, // 10: MarkService.CreateReview:output_type -> google.protobuf.Empty
+	8, // 11: MarkService.IncLike:output_type -> google.protobuf.Empty
+	8, // 12: MarkService.DecLike:output_type -> google.protobuf.Empty
+	7, // [7:13] is the sub-list for method output_type
+	1, // [1:7] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -427,7 +536,7 @@ func file_services_mark_api_proto_mark_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_services_mark_api_proto_mark_proto_rawDesc), len(file_services_mark_api_proto_mark_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

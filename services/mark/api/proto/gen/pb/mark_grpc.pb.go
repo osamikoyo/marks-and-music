@@ -24,6 +24,8 @@ const (
 	MarkService_DeleteReview_FullMethodName = "/MarkService/DeleteReview"
 	MarkService_GetMark_FullMethodName      = "/MarkService/GetMark"
 	MarkService_CreateReview_FullMethodName = "/MarkService/CreateReview"
+	MarkService_IncLike_FullMethodName      = "/MarkService/IncLike"
+	MarkService_DecLike_FullMethodName      = "/MarkService/DecLike"
 )
 
 // MarkServiceClient is the client API for MarkService service.
@@ -34,6 +36,8 @@ type MarkServiceClient interface {
 	DeleteReview(ctx context.Context, in *DeleteReviewRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetMark(ctx context.Context, in *GetMarkRequest, opts ...grpc.CallOption) (*Mark, error)
 	CreateReview(ctx context.Context, in *Review, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	IncLike(ctx context.Context, in *IncLikeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DecLike(ctx context.Context, in *DecLikeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type markServiceClient struct {
@@ -84,6 +88,26 @@ func (c *markServiceClient) CreateReview(ctx context.Context, in *Review, opts .
 	return out, nil
 }
 
+func (c *markServiceClient) IncLike(ctx context.Context, in *IncLikeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, MarkService_IncLike_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *markServiceClient) DecLike(ctx context.Context, in *DecLikeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, MarkService_DecLike_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MarkServiceServer is the server API for MarkService service.
 // All implementations must embed UnimplementedMarkServiceServer
 // for forward compatibility.
@@ -92,6 +116,8 @@ type MarkServiceServer interface {
 	DeleteReview(context.Context, *DeleteReviewRequest) (*emptypb.Empty, error)
 	GetMark(context.Context, *GetMarkRequest) (*Mark, error)
 	CreateReview(context.Context, *Review) (*emptypb.Empty, error)
+	IncLike(context.Context, *IncLikeRequest) (*emptypb.Empty, error)
+	DecLike(context.Context, *DecLikeRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMarkServiceServer()
 }
 
@@ -113,6 +139,12 @@ func (UnimplementedMarkServiceServer) GetMark(context.Context, *GetMarkRequest) 
 }
 func (UnimplementedMarkServiceServer) CreateReview(context.Context, *Review) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateReview not implemented")
+}
+func (UnimplementedMarkServiceServer) IncLike(context.Context, *IncLikeRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IncLike not implemented")
+}
+func (UnimplementedMarkServiceServer) DecLike(context.Context, *DecLikeRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DecLike not implemented")
 }
 func (UnimplementedMarkServiceServer) mustEmbedUnimplementedMarkServiceServer() {}
 func (UnimplementedMarkServiceServer) testEmbeddedByValue()                     {}
@@ -207,6 +239,42 @@ func _MarkService_CreateReview_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MarkService_IncLike_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IncLikeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarkServiceServer).IncLike(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarkService_IncLike_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarkServiceServer).IncLike(ctx, req.(*IncLikeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MarkService_DecLike_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DecLikeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarkServiceServer).DecLike(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MarkService_DecLike_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarkServiceServer).DecLike(ctx, req.(*DecLikeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MarkService_ServiceDesc is the grpc.ServiceDesc for MarkService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -229,6 +297,14 @@ var MarkService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateReview",
 			Handler:    _MarkService_CreateReview_Handler,
+		},
+		{
+			MethodName: "IncLike",
+			Handler:    _MarkService_IncLike_Handler,
+		},
+		{
+			MethodName: "DecLike",
+			Handler:    _MarkService_DecLike_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
