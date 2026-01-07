@@ -55,6 +55,25 @@ func (r *Repository) CreateReview(ctx context.Context, review *entity.Review) er
 	return nil
 }
 
+func (r *Repository) UpdateReview(ctx context.Context, id uint, update *entity.Review) error {
+	r.logger.Info("updating review",
+		zap.Any("update", update),
+		zap.Uint("id", id))
+
+	if err := r.db.WithContext(ctx).Save(update).Error; err != nil {
+		r.logger.Error("failed update review",
+			zap.Any("update", update),
+			zap.Uint("id", id))
+
+		return ErrInternal
+	}
+
+	r.logger.Info("review updated successfully",
+		zap.Any("update", update))
+
+	return nil
+}
+
 func (r *Repository) DeleteReview(ctx context.Context, id uint) error {
 	r.logger.Info("deleting review",
 		zap.Uint("id", id))
